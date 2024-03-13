@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+    
+<suppressions>
+	<!-- Allow public final attirbutes in DTOs -->
+    <suppress checks="."
+              files="ch.fhnw.swc.mrs.api.*DTO" />
+    <suppress checks="."
+              files="ch.fhnw.swc.mrs.[view]" />
+              
+     <!-- Suppress any none Java files from being checked -->
+     <suppress files=".+\.(?:txt|xml|csv|sh|xlsx|html|sql|eot|ttf|woff|css|png|properties)$"
+  checks=".*"/>
+              
+</suppressions>

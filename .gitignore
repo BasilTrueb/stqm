@@ -1,0 +1,16 @@
+/target/
+
+# Eclipse files
+.project
+.classpath
+.checkstyle
+.settings/
+
+# intelliJ files
+.idea/
+
+# VS Code
+.vscode/
+
+#others
+*.zip

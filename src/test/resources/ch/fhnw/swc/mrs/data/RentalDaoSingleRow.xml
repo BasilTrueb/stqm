@@ -1,0 +1,16 @@
+<dataset>
+    <users userid="7" 
+    firstname="James"
+    name="Bond"
+    birthdate="1956-05-17"/>
+    <movies movieid="3" 
+    title="Goldfinger"
+    isrented="true" 
+    releasedate="1942-03-28"
+    pricecategory="Regular" 
+    agerating="12"/>
+    <rentals rentalid="5"
+    movieid="3"
+    userid="7"
+    rentaldate="2017-08-31"/>
+</dataset>

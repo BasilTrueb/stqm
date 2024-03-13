@@ -1,0 +1,20 @@
+MOVIES;;;
+Title;ReleaseDate;Rented;PriceCategory
+Lord of the Rings;19.12.2001;TRUE;2
+Matrix;31.03.1999;TRUE;1
+Matrix Reloaded;01.01.1999;TRUE;1
+Eragorn;04.08.2004;FALSE;1
+Batman;12.05.1999;TRUE;3
+Live Free or Die Hard;27.06.2007;FALSE;3
+Cloverfield;18.01.2008;FALSE;3
+Juno;25.12.2007;FALSE;2
+Sweeney Todd: The Demon Barber of Fleet Street;21.12.2007;TRUE;3
+There Will Be Blood;11.01.2008;TRUE;3
+No Country for Old Men;21.11.2007;FALSE;3
+Rambo;25.01.2008;FALSE;3
+Brokeback Mountain;16.12.2005;TRUE;3
+27 Dresses;18.01.2008;FALSE;2
+Meet the Spartans;25.01.2008;FALSE;3
+The Bucket List;11.01.2008;FALSE;3
+Untraceable;25.01.2008;FALSE;3
+The Eye;01.02.2008;FALSE;3

@@ -1,0 +1,5 @@
+#* @implicitly included *#
+#* @vtlvariable name="WebPath" type="ch.fhnw.swc.mrs.util.Path.Web" *#
+#* @vtlvariable name="msg" type="ch.fhnw.swc.mrs.util.MessageBundle" *#
+#* @vtlvariable name="movies" type="java.lang.Iterable<ch.fhnw.swc.mrs.model.Movie>" *#
+#* @vtlvariable name="movie" type="ch.fhnw.swc.mrs.model.Movie" *#

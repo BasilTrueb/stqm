@@ -1,0 +1,340 @@
+openapi: 3.0.0
+info:
+  title: Movie Rental System API
+  description: >
+    This API specifies the REST interface of the Movie Rental System that is
+    used in the course Software Testing and Quality Management.
+  version: 1.0.0
+  contact:
+    name: Software Testing & Quality Management
+    url: 'http://web.fhnw.ch/plattformen/stqm/'
+    email: christoph.denzler@fhnw.ch
+servers:
+  - url: 'http://localhost:4567'
+paths:
+  /movies:
+    get:
+      summary: Returns a list of movies.
+      description: >
+        If parameter `rented` is provided, then its value will determine whether
+        only rented movies or only available movies will be returned. All
+        movies(unfiltered) will only be returned in the absence of the `rented`
+        parameter.
+      parameters:
+        - name: rented
+          description: >-
+            If used, this parameter indicates if rented or unrented movies shall
+            be returned.
+          in: query
+          required: false
+          allowEmptyValue: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON array of movie objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+    post:
+      summary: creates a movie
+      description: Creates a new movie.
+      parameters:
+        - name: title
+          description: the title of the movie object to create.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+        - name: releaseDate
+          description: the date when the movie was released.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            format: date
+        - name: priceCategory
+          description: the price category applicable for the movie.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            format: date
+        - name: ageRating
+          description: the minimum age to be allowed to rent the movie.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: >-
+            Movie object successfully created. The respone contains a JSON
+            object of the newly created movie.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: >-
+            The request could not be processed most probably because the
+            provided parameters where illegal or contained illegal data.
+  '/movies/{id}':
+    get:
+      summary: Returns a specific movie
+      description: Returns a single movie with the given id.
+      parameters:
+        - name: id
+          description: The unique identification of the movie object to retrieve.
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Movie object retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found.
+    delete:
+      summary: Deletes a movie
+      description: |
+        Deletes the movie with the provided id.
+      parameters:
+        - name: id
+          description: The unique identification of the movie object to delete.
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Movie object successfully deleted.
+        '404':
+          description: Movie not found
+    put:
+      summary: Updates a movie
+      description: Updates the movie with the provided id.
+      parameters:
+        - name: id
+          description: The unique identification of the movie object to update.
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      requestBody:
+        description: 'Movie object that needs to be updated, containing new data.'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '200':
+          description: >-
+            Movie object successfully updated. The respone contains a JSON
+            object of the updated movie.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: >-
+            The request could not be processed or the provided ids in the path
+            and in the body do not match
+  /users:
+    get:
+      summary: Returns a list of users.
+      description: >
+        If parameter `name` is provided, then a user with the provided name
+        be returned (if any was found). Note that only one user object is returned,
+        if more than one users exists with the provided name, any of these can be
+        returend.
+        Else (if no parameter is provided), a list of all users will be returned.
+      parameters: 
+        - name: name
+          description: The name of the user to return.
+          in: query
+          required: false
+          allowEmptyValue: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON array of user objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    post:
+      summary: Creates a user.
+      description: Creates a new user.
+      parameters: 
+        - name: name
+          description: The family name of the new user.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+        - name: firstname
+          description: the first name of the new user.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+        - name: birthDate
+          description: the date of birth of the new user.
+          in: query
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '201':
+          description: >-
+            User object successfully created. The response contains a JSON
+            object of the newly created user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: >-
+            The request could not be processed most probably because the
+            provided parameters where illegal or contained illegal data.
+  '/users/{id}':
+    get:
+      summary: Returns a specific user
+      description: Returns a single user with the given id.
+      parameters: 
+        - name: id
+          description: The unique identification of the movie object to retrieve.
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User object retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found.
+    delete:
+      summary: Deletes a user.
+      description: |
+        Deletes the user with the provided id.
+      parameters:
+        - name: id
+          description: The unique identification of the user object to delete.
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User object successfully deleted.
+        '404':
+          description: User not found
+    put:
+      summary: Updates a user
+      description: Updates the user with the provided id.
+      parameters:
+        - name: id
+          description: The unique identification of the user object to update.
+          in: path
+          required: true
+          allowEmptyValue: false
+          schema:
+            type: integer
+      requestBody:
+        description: 'User object that needs to be updated, containing new data.'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: >-
+            User object successfully updated. The respone contains a JSON
+            object of the updated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: >-
+            The request could not be processed or the provided ids in the path
+            and in the body do not match
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: Casablanca
+          description: The title of the movie.
+        releaseDate:
+          type: string
+          format: date
+          example: '1939-10-12'
+          description: The date this movie was released.
+        priceCategory:
+          type: string
+          example: Regular
+          description: >-
+            The price category used to determine the rental fee.
+            One of [Regular | Children | New Release]
+        ageRating:
+          type: integer
+          example: 6
+          description: The minimum age to be allowed to rent this movie.
+      required:
+        - title
+        - releaseDate
+        - priceCategory
+        - ageRating
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstname:
+          description: First name.
+          type: string
+          example: James
+        name:
+          description: Family name.
+          type: string
+          example: Bond
+        birthDate:
+          description: Date of birth.
+          type: string
+          format: date
+          example: '1920-11-11'
+      required:
+        - firstname
+        - name
+        - birthDate

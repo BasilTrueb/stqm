@@ -1,0 +1,23 @@
+<dataset>
+	<movies	movieid="20000000-0000-0000-0000-000000000001"
+	title="Saw"
+   	rented="false" 
+	releasedate="2017-01-01"
+	pricecategory="Regular"
+	agerating="16"/>
+		
+	<movies	movieid="20000000-0000-0000-0000-000000000002"
+	title="Lion"
+   	rented="true" 
+	releasedate="2013-01-01"
+	pricecategory="Regular"
+	agerating="11"/>
+		
+		
+	<movies	movieid="20000000-0000-0000-0000-000000000009"
+	title="House"
+    rented="false" 
+	releasedate="2016-01-01"
+	pricecategory="New Release"
+	agerating="18"/>
+</dataset>

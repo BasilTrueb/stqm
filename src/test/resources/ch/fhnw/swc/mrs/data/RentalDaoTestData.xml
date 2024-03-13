@@ -1,0 +1,43 @@
+<dataset>
+    <movies movieid="10000000-0000-0000-0000-000000000001" 
+    title="Titanic"
+    rented="true" 
+    releasedate="1999-08-02"
+    pricecategory="Regular" 
+    agerating="12"/>
+    <movies movieid="10000000-0000-0000-0000-000000000002" 
+    title="Avatar"
+    rented="true" 
+    releasedate="2005-09-17"
+    pricecategory="New Release" 
+    agerating="16"/>
+    <movies movieid="10000000-0000-0000-0000-000000000003" 
+    title="Casablanca"
+    rented="false" 
+    releasedate="1942-03-28"
+    pricecategory="Children" 
+    agerating="0"/>
+    
+    <users userid="20000000-0000-0000-0000-000000000013"
+    firstname="Donald"
+    name="Duck"
+    birthdate="1968-01-13"/>
+    <users userid="20000000-0000-0000-0000-000000000042" 
+    firstname="Micky"
+    name="Mouse"
+    birthdate="1935-11-03"/>
+    <users userid="20000000-0000-0000-0000-000000000099"
+    firstname="Dagobert"
+    name="Duck"
+    birthdate="1945-09-09" />
+    
+    <rentals rentalid="30000000-0000-0000-0000-000000000005"
+    movieid="10000000-0000-0000-0000-000000000001"
+    userid="20000000-0000-0000-0000-000000000013"
+    rentaldate="2017-08-31"/>
+    <rentals rentalid="30000000-0000-0000-0000-000000000008"
+    movieid="10000000-0000-0000-0000-000000000002"
+    userid="20000000-0000-0000-0000-000000000099"
+    rentaldate="2017-08-30"/>
+    
+</dataset>

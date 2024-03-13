@@ -1,0 +1,21 @@
+<dataset>
+    <users userid="20000000-0000-0000-0000-000000000001"
+    firstname="Donald"
+    name="Duck"
+    birthdate="2013-01-13"/>
+    
+    <users userid="20000000-0000-0000-0000-000000000002" 
+    firstname="Micky"
+    name="Mouse"
+    birthdate="1935-11-03"/>
+    
+    <users userid="20000000-0000-0000-0000-000000000009"
+    firstname="Dagobert"
+    name="Duck"
+    birthdate="1945-09-09" />
+
+    <users userid="20000000-A000-0000-0000-00000000000A"
+    firstname="Goofus"
+    name="Goofy"
+    birthdate="1936-10-12" />
+</dataset>
