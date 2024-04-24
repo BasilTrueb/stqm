@@ -3,7 +3,6 @@ package ch.fhnw.swc.mrs.view;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -137,7 +136,7 @@ public class UserController extends AbstractController {
 
         int row = view.table.getSelectedRow();
         DefaultTableModel tm = (DefaultTableModel) view.table.getModel();
-        UUID id = UUID.fromString((String) tm.getValueAt(row, 0));
+        long id = Long.parseLong((String) tm.getValueAt(row, 0));
         editing = getBackend().getUserById(id);
 
         view.surnameTF.setEditable(true);
@@ -155,7 +154,7 @@ public class UserController extends AbstractController {
 
         int row = view.table.getSelectedRow();
         DefaultTableModel tm = (DefaultTableModel) view.table.getModel();
-        UUID id = UUID.fromString((String) tm.getValueAt(row, 0));
+        long id = Long.parseLong((String) tm.getValueAt(row, 0));
 
         if (getBackend().deleteUser(id)) {
             tm.removeRow(row);

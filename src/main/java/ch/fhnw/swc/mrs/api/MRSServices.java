@@ -2,7 +2,6 @@ package ch.fhnw.swc.mrs.api;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.UUID;
 
 import ch.fhnw.swc.mrs.model.Movie;
 import ch.fhnw.swc.mrs.model.Rental;
@@ -17,13 +16,12 @@ public interface MRSServices {
      * 
      * @param aTitle Title of the movie. Must not be null nor empty.
      * @param aReleaseDate Date when this movie was released. Must not be null.
-     * @param aPriceCategory Price category for this movie. Must not be null.
      * @param anAgeRating How old a user must be at least to be allowed to rent this Movie. A value
      *            between [0, 18].
-     * @return a MovieDTO containing the data of the newly created Movie object.
+     * @return a Movie object initialized with given data.
      * @throws IllegalArgumentException in case, any of the parameters are null or title is empty.
      */
-    Movie createMovie(String aTitle, LocalDate aReleaseDate, String aPriceCategory, int anAgeRating);
+    Movie createMovie(String aTitle, LocalDate aReleaseDate, int anAgeRating);
 
     /**
      * Retrieve all Movies.
@@ -50,7 +48,7 @@ public interface MRSServices {
      * 
      *         if no movie found with given id.
      */
-    Movie getMovieById(UUID id);
+    Movie getMovieById(long id);
 
     /**
      * Update Movie with new data.
@@ -63,10 +61,10 @@ public interface MRSServices {
     /**
      * Delete Movie.
      * 
-     * @param id id of Movie to delete.
+     * @param movieid Movie to delete.
      * @return whether the delete operation was successful.
      */
-    boolean deleteMovie(UUID id);
+    boolean deleteMovie(long movieid);
 
     /**
      * Retrieve all Users.
@@ -79,7 +77,7 @@ public interface MRSServices {
      * @param id the identification of the User to retrieve.
      * @return get User by its ID.
      */
-    User getUserById(UUID id);
+    User getUserById(long id);
 
     /**
      * @param name retrieve first user found with given name.
@@ -93,7 +91,7 @@ public interface MRSServices {
      * @param aName the user's family name.
      * @param aFirstName the user's first name.
      * @param aBirthdate the user's date of birth.
-     * @return a UserDTO containing the data of the newly create User object.
+     * @return a User object initialized with given data.
      * @throws IllegalArgumentException The name must neither be <code>null</code>.
      * @throws MovieRentalException If the name is empty ("") or longer than 40 characters.
      */
@@ -110,10 +108,10 @@ public interface MRSServices {
     /**
      * Delete User.
      * 
-     * @param id id of user to delete.
+     * @param userid user to delete.
      * @return whether the delete operation was successful.
      */
-    boolean deleteUser(UUID id);
+    boolean deleteUser(long userid);
 
     /**
      * Retrieve all Rentals.
@@ -130,15 +128,15 @@ public interface MRSServices {
      * @param rentalDate date the rental starts.
      * @return the created Rental object.
      */
-    Rental createRental(UUID userId, UUID movieId, LocalDate rentalDate);
+    Rental createRental(long userId, long movieId, LocalDate rentalDate);
 
     /**
      * Delete the rental with the specified rental ID.
      * 
-     * @param id id of rental to delete.
+     * @param rentalid rental to delete.
      * @return whether the deletion was successful.
      */
-    boolean deleteRental(UUID id);
+    boolean deleteRental(long rentalid);
 
     /**
      * Creates database.

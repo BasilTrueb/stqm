@@ -1,59 +1,36 @@
 package ch.fhnw.swc.mrs.data;
 
-import java.time.LocalDate;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.sql2o.Connection;
-import org.sql2o.Sql2o;
-
-import ch.fhnw.swc.mrs.model.Movie;
+import ch.fhnw.swc.mrs.api.MovieRentalException;
 import ch.fhnw.swc.mrs.model.Rental;
-import ch.fhnw.swc.mrs.model.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 /**
  * The Rental data object model class.
  * 
  */
 public class RentalDAO {
+    
+    /** Message when attempting to update rentals. */
+    public static final String EXC_UPDATE_NOT_ALLOWED = "Rentals cannot be updated.";
+    
+    /** Query to get all Rentals. */
+    private static final String GET_ALL_RENTALS = "SELECT r FROM Rental r";
+    /** Query to get rental by user. */
+    private static final String GET_RENTAL_BY_USER = "SELECT r FROM Rental r WHERE r.user.id = :userid";
 
-    /** SQL statement to delete rental. */
-    private static final String DELETE_SQL = "DELETE FROM rentals WHERE rentalid = :rentalid";
-    /** SQL statement to create rental. */
-    private static final String INSERT_SQL = "INSERT INTO rentals ( rentalid, movieid, userid, rentaldate )"
-            + "  VALUES ( :rentalid, :movieid, :userid, :rentaldate )";
-    /** select clause of queries. */
-    private static final String SELECT_CLAUSE = "SELECT rentalid, movieid, userid, rentaldate FROM rentals ";
-    /** SQL statement to get rental by id. */
-    private static final String GET_BY_ID_SQL = SELECT_CLAUSE + " WHERE rentalid = :rentalid";
-    /** SQL statement to get all rentals from a user. */
-    private static final String GET_BY_USER_SQL = SELECT_CLAUSE + " WHERE userid = :userid";
-    /** SQL statement to get all rentals. */
-    private static final String GET_ALL_SQL = SELECT_CLAUSE;
-
-    private Sql2o sql2o;
-
+    private EntityManager em;
+    
     /**
-     * 
-     * @param sql2o the sql to dao param
+     * Create a data access object (DAO) for rental related database queries.
+     * @param em EntityManager to use with this DAO.
      */
-    public RentalDAO(Sql2o sql2o) {
-        this.sql2o = sql2o;
-    }
-
-    /**
-     * Retrieve a rental by its identification.
-     * 
-     * @param id the unique identification of the rental object to retrieve.
-     * @return the rental with the given identification or <code>null</code> if none found.
-     */
-    public Rental getById(UUID id) {
-        Rntl r = null;
-        try (Connection conn = sql2o.open()) {
-            r = conn.createQuery(GET_BY_ID_SQL).addParameter("rentalid", id).executeAndFetchFirst(Rntl.class);
-        }
-        return materializeRental(r);
+    public RentalDAO(EntityManager em) {
+        this.em = em;
     }
 
     /**
@@ -62,15 +39,19 @@ public class RentalDAO {
      * @return a list of all rentals.
      */
     public List<Rental> getAll() {
-        List<Rntl> list = new LinkedList<>();
-        List<Rental> result = new LinkedList<>();
-        try (Connection conn = sql2o.open()) {
-            list = conn.createQuery(GET_ALL_SQL).executeAndFetch(Rntl.class);
-        }
-        for (Rntl r : list) {
-            result.add(materializeRental(r));
-        }
+        TypedQuery<Rental> query = em.createQuery(GET_ALL_RENTALS, Rental.class);
+        List<Rental> result = query.getResultList();
         return result;
+    }
+
+    /**
+     * Retrieve a rental by its identification.
+     * 
+     * @param rentalid the unique identification of the rental object to retrieve.
+     * @return the rental with the given identification or <code>null</code> if none found.
+     */
+    public Rental getById(long rentalid) {
+        return em.find(Rental.class, rentalid);
     }
 
     /**
@@ -79,60 +60,54 @@ public class RentalDAO {
      * @param userid to retrieve rentals from.
      * @return all rentals of this user, possibly empty list.
      */
-    public List<Rental> getRentalsByUser(UUID userid) {
-        List<Rntl> list = new LinkedList<>();
-        List<Rental> result = new LinkedList<>();
-        try (Connection conn = sql2o.open()) {
-            list = conn.createQuery(GET_BY_USER_SQL).addParameter("userid", userid).executeAndFetch(Rntl.class);
-        }
-        for (Rntl r : list) {
-            result.add(materializeRental(r));
-        }
+    public List<Rental> getRentalsByUser(long userid) {
+        TypedQuery<Rental> query = em.createQuery(GET_RENTAL_BY_USER, Rental.class).setParameter("userid", userid);
+        List<Rental> result = query.getResultList();
         return result;
     }
 
-    private Rental materializeRental(Rntl r) {
-        try (Connection conn = sql2o.open()) {
-            User u = conn.createQuery(UserDAO.GET_BY_ID_SQL).addParameter("userid", r.userid)
-                    .executeAndFetchFirst(User.class);
-            Movie m = conn.createQuery(MovieDAO.GET_BY_ID_SQL).addParameter("movieid", r.movieid)
-                    .executeAndFetchFirst(Movie.class);
-            Rental result = new Rental(u, m, r.rentaldate);
-            result.setRentalId(r.rentalid);
-            return result;
-        }
-    }
-
     /**
-     * 
-     * @param userid unique user id
-     * @param movieid unique movie id
-     * @param rentalDate date of rental
-     * @return UUID of new rental
+     * Persist a Rental object. This method will only create a new rental to the database.
+     * It is NOT POSSIBLE to update Rentals (by intention).
+     * @param rental the object to persist.
      */
-    public UUID create(UUID userid, UUID movieid, LocalDate rentalDate) {
-        UUID newRentalId = UUID.randomUUID();
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(INSERT_SQL).addParameter("rentalid", newRentalId).addParameter("movieid", movieid)
-                    .addParameter("userid", userid).addParameter("rentaldate", rentalDate).executeUpdate();
-
-            return newRentalId;
+    public void save(Rental rental) {
+        if (rental.getRentalId() != 0) {
+            throw new MovieRentalException(EXC_UPDATE_NOT_ALLOWED);
         }
+        executeInsideTransaction(em -> {
+            em.persist(rental);
+            em.merge(rental.getMovie());
+            em.merge(rental.getUser());
+        });
     }
 
     /**
      * Remove a rental from the database.
      * 
-     * @param id the Rental to remove.
+     * @param rental the Rental to remove.
      */
-    public void delete(UUID id) {
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(DELETE_SQL).addParameter("rentalid", id).executeUpdate();
-        }
+    public void delete(Rental rental) {
+        executeInsideTransaction(em -> {
+            var user = rental.getUser();
+            var movie = rental.getMovie();
+            user.removeRental(rental);
+            movie.setRented(false);
+            em.merge(user);
+            em.merge(movie);
+            em.remove(em.merge(rental));
+        });
     }
 
-    private static class Rntl {
-        private UUID rentalid, movieid, userid;
-        private LocalDate rentaldate;
+    private void executeInsideTransaction(Consumer<EntityManager> action) {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            action.accept(em);
+            tx.commit();
+        } catch (Exception e) {
+            tx.rollback();
+            throw new MovieRentalException("DB operation failed", e);
+        }
     }
 }

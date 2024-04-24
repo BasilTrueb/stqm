@@ -1,7 +1,5 @@
 package ch.fhnw.swc.mrs.util;
 
-import java.util.UUID;
-
 import spark.Request;
 
 /**
@@ -15,9 +13,9 @@ public final class RequestUtil {
      * @param request the request to extract the id parameter from.
      * @return the id or -1 if there was none or an illegal one.
      */
-    public static UUID getParamId(Request request) {
+    public static long getParamId(Request request) {
         String param = request.params("id");
-        return UUID.fromString(param);
+        return Long.parseLong(param);
     }
 
     /**

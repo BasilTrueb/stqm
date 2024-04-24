@@ -28,7 +28,6 @@ public class AgeRatingTest {
      *****************************************************************/
     private static final String TITLE = "aTitle";
     private static final LocalDate TODAY = LocalDate.now();
-    private static final PriceCategory REGULAR = RegularPriceCategory.getInstance();
 
     private static final String NAME = "aName";
     private static final String FIRSTNAME = "aFistName";
@@ -38,19 +37,19 @@ public class AgeRatingTest {
     void testCtorWithAgeRating() {
 
         Movie m;
-        m = new Movie(TITLE, TODAY, REGULAR, Movie.MIN_AGE_RATING_AGE);
+        m = new Movie(TITLE, TODAY, Movie.MIN_AGE_RATING_AGE);
         assertEquals(Movie.MIN_AGE_RATING_AGE, m.getAgeRating());
 
-        m = new Movie(TITLE, TODAY, REGULAR, Movie.MIN_AGE_RATING_AGE + 1);
+        m = new Movie(TITLE, TODAY, Movie.MIN_AGE_RATING_AGE + 1);
         assertEquals(Movie.MIN_AGE_RATING_AGE + 1, m.getAgeRating());
 
-        m = new Movie(TITLE, TODAY, REGULAR, Movie.MAX_AGE_RATING_AGE - 1);
+        m = new Movie(TITLE, TODAY, Movie.MAX_AGE_RATING_AGE - 1);
         assertEquals(Movie.MAX_AGE_RATING_AGE - 1, m.getAgeRating());
 
-        m = new Movie(TITLE, TODAY, REGULAR, Movie.MAX_AGE_RATING_AGE);
+        m = new Movie(TITLE, TODAY, Movie.MAX_AGE_RATING_AGE);
         assertEquals(Movie.MAX_AGE_RATING_AGE, m.getAgeRating());
 
-        m = new Movie(TITLE, TODAY, REGULAR, (Movie.MAX_AGE_RATING_AGE - Movie.MIN_AGE_RATING_AGE) / 2);
+        m = new Movie(TITLE, TODAY, (Movie.MAX_AGE_RATING_AGE - Movie.MIN_AGE_RATING_AGE) / 2);
         assertEquals((Movie.MAX_AGE_RATING_AGE - Movie.MIN_AGE_RATING_AGE) / 2, m.getAgeRating());
     }
 
@@ -63,7 +62,7 @@ public class AgeRatingTest {
             Movie.MAX_AGE_RATING_AGE };
 
         for (int agerating : legalAgeRatings) {
-            Movie m = new Movie(TITLE, TODAY, REGULAR, agerating);
+            Movie m = new Movie(TITLE, TODAY, agerating);
             assertEquals(agerating, m.getAgeRating());
         }
     }
@@ -74,7 +73,7 @@ public class AgeRatingTest {
                           (Movie.MIN_AGE_RATING_AGE + Movie.MAX_AGE_RATING_AGE) / 2, Movie.MAX_AGE_RATING_AGE - 1,
                           Movie.MAX_AGE_RATING_AGE })
     void testCtorWithAgeRatingParameterized(int ageRating) {
-        Movie m = new Movie(TITLE, TODAY, REGULAR, ageRating);
+        Movie m = new Movie(TITLE, TODAY, ageRating);
         assertEquals(ageRating, m.getAgeRating());
     }
 
@@ -83,7 +82,7 @@ public class AgeRatingTest {
     @ValueSource(ints = { Integer.MIN_VALUE, Movie.MIN_AGE_RATING_AGE - 1, Movie.MIN_AGE_RATING_AGE - 400,
                           Movie.MAX_AGE_RATING_AGE + 1, Movie.MAX_AGE_RATING_AGE + 5000, Integer.MAX_VALUE })
     void testCtorWithIllegalAgeRating(final int ageRating) {
-        assertThrows(IllegalArgumentException.class, () -> new Movie(TITLE, TODAY, REGULAR, ageRating));
+        assertThrows(IllegalArgumentException.class, () -> new Movie(TITLE, TODAY, ageRating));
     }
 
     @DisplayName("Test User constructor with legal parameter birthdate")
@@ -204,7 +203,7 @@ public class AgeRatingTest {
     @DisplayName("new born user renting movie with age rating 0")
     @Test
     public void testRentalCtor1() {
-        Movie m = new Movie(TITLE, TODAY, REGULAR, 0);
+        Movie m = new Movie(TITLE, TODAY, 0);
         User u = new User(NAME, FIRSTNAME, TODAY);
 
         new Rental(u, m, TODAY);
@@ -213,7 +212,7 @@ public class AgeRatingTest {
     @DisplayName("new born user renting a movie with age rating 5")
     @Test
     public void testRentalCtor2() {
-        Movie m = new Movie(TITLE, TODAY, REGULAR, 5);
+        Movie m = new Movie(TITLE, TODAY, 5);
         User u = new User(NAME, FIRSTNAME, TODAY);
 
         Throwable t = assertThrows(MovieRentalException.class, () -> new Rental(u, m, TODAY));
@@ -223,7 +222,7 @@ public class AgeRatingTest {
     @DisplayName("18 year old renting adult movie")
     @Test
     public void testRentalCtor3() {
-        Movie m = new Movie(TITLE, TODAY, REGULAR, 18);
+        Movie m = new Movie(TITLE, TODAY, 18);
         User u = new User(NAME, FIRSTNAME, TODAY.minusYears(18));
 
         new Rental(u, m, TODAY);
@@ -232,7 +231,7 @@ public class AgeRatingTest {
     @DisplayName("17 year old renting adult movie")
     @Test
     public void testRentalCtor4() {
-        Movie m = new Movie(TITLE, TODAY, REGULAR, 18);
+        Movie m = new Movie(TITLE, TODAY, 18);
         User u = new User(NAME, FIRSTNAME, TODAY.minusYears(18).plusDays(1));
 
         Throwable t = assertThrows(MovieRentalException.class, () -> new Rental(u, m, TODAY));

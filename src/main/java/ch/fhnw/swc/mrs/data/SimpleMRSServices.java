@@ -3,20 +3,19 @@ package ch.fhnw.swc.mrs.data;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.model.Movie;
-import ch.fhnw.swc.mrs.model.PriceCategory;
 import ch.fhnw.swc.mrs.model.Rental;
 import ch.fhnw.swc.mrs.model.User;
 
@@ -25,17 +24,18 @@ import ch.fhnw.swc.mrs.model.User;
  */
 public class SimpleMRSServices implements MRSServices {
 
-    private Map<UUID, Movie> movies = new HashMap<>();
-    private Map<UUID, User> users = new HashMap<>();
-    private Map<UUID, Rental> rentals = new HashMap<>();
+    private static long nextid = 100;
+
+    private Map<Long, Movie> movies = new HashMap<>();
+    private Map<Long, User> users = new HashMap<>();
+    private Map<Long, Rental> rentals = new HashMap<>();
 
     @Override
-    public Movie createMovie(String aTitle, LocalDate aReleaseDate, String aPriceCategory, int anAgeRating) {
+    public Movie createMovie(String aTitle, LocalDate aReleaseDate, int anAgeRating) {
         try {
-            PriceCategory pc = PriceCategory.getPriceCategoryFromId(aPriceCategory);
-            Movie m = new Movie(aTitle, aReleaseDate, pc, anAgeRating);
-            UUID id = UUID.randomUUID();
-            m.setMovieid(id);
+            Movie m = new Movie(aTitle, aReleaseDate, anAgeRating);
+            long id = nextid++;
+            setId(m, id);
             movies.put(id, m);
             return m;
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public class SimpleMRSServices implements MRSServices {
     }
 
     @Override
-    public Movie getMovieById(UUID id) {
+    public Movie getMovieById(long id) {
         return movies.get(id);
     }
 
@@ -71,8 +71,8 @@ public class SimpleMRSServices implements MRSServices {
     }
 
     @Override
-    public boolean deleteMovie(UUID id) {
-        return movies.remove(id) != null;
+    public boolean deleteMovie(long movieid) {
+        return movies.remove(movieid) != null;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class SimpleMRSServices implements MRSServices {
     }
 
     @Override
-    public User getUserById(UUID id) {
+    public User getUserById(long id) {
         return users.get(id);
     }
 
@@ -99,8 +99,8 @@ public class SimpleMRSServices implements MRSServices {
     public User createUser(String aName, String aFirstName, LocalDate aBirthdate) {
         try {
             User u = new User(aName, aFirstName, aBirthdate);
-            UUID id = UUID.randomUUID();
-            u.setUserid(id);
+            long id = nextid++;
+            setId(u, id);
             users.put(id, u);
             return u;
         } catch (Exception e) {
@@ -116,8 +116,8 @@ public class SimpleMRSServices implements MRSServices {
     }
 
     @Override
-    public boolean deleteUser(UUID id) {
-        return users.remove(id) != null;
+    public boolean deleteUser(long userid) {
+        return users.remove(userid) != null;
     }
 
     @Override
@@ -126,19 +126,31 @@ public class SimpleMRSServices implements MRSServices {
     }
 
     @Override
-    public Rental createRental(UUID userId, UUID movieId, LocalDate rentalDate) {
+    public Rental createRental(long userId, long movieId, LocalDate rentalDate) {
         User u = users.get(userId);
         Movie m = movies.get(movieId);
 
         if (u != null && m != null && !m.isRented() && !rentalDate.isAfter(LocalDate.now())) {
-            Rental r = new Rental(u, m, rentalDate);
-            UUID id = UUID.randomUUID();
-            r.setRentalId(id);
-            rentals.put(id, r);
-
-            return r;
+            try {
+                Rental r = new Rental(u, m, rentalDate);
+                long id = nextid++;
+                setId(r, id);
+                rentals.put(id, r);
+                return r;
+            } catch (Exception e) {
+                return null;
+            }
         }
         return null;   
+    }
+    
+    @Override
+    public boolean deleteRental(long rentalid) {
+        Rental r = rentals.get(rentalid);
+        r.getMovie().setRented(false);
+        boolean result = r.getUser().removeRental(r);
+        rentals.remove(rentalid);
+        return result;
     }
     
     /**
@@ -167,13 +179,12 @@ public class SimpleMRSServices implements MRSServices {
             Iterable<CSVRecord> movieList = format.parse(in);            
             
             for (CSVRecord m : movieList) {
-                UUID id = UUID.fromString(m.get(MovieHeaders.ID));
+                long id = Long.parseLong(m.get(MovieHeaders.ID));
                 String title = m.get(MovieHeaders.Title);
                 LocalDate releaseDate = LocalDate.parse(m.get(MovieHeaders.ReleaseDate));
-                PriceCategory pc = PriceCategory.getPriceCategoryFromId(m.get(MovieHeaders.PriceCategory));
                 int ageRating = Integer.parseInt(m.get(MovieHeaders.AgeRating));
-                Movie movie = new Movie(title, releaseDate, pc, ageRating);
-                movie.setMovieid(id);
+                Movie movie = new Movie(title, releaseDate, ageRating);
+                setId(movie, id);
                 movies.put(id, movie);
             }
         } catch (Exception e) {
@@ -190,12 +201,12 @@ public class SimpleMRSServices implements MRSServices {
             Iterable<CSVRecord> usersList = format.parse(in);            
             
             for (CSVRecord u : usersList) {
-                UUID id = UUID.fromString(u.get(UserHeaders.ID));
+                long id = Long.parseLong(u.get(UserHeaders.ID));
                 String surname = u.get(UserHeaders.Surname);
                 String firstname = u.get(UserHeaders.FirstName);
                 LocalDate birthdate = LocalDate.parse(u.get(UserHeaders.Birthdate));
                 User user = new User(surname, firstname, birthdate);
-                user.setUserid(id);
+                setId(user, id);
                 users.put(id, user);
             }
         } catch (Exception e) {
@@ -212,14 +223,14 @@ public class SimpleMRSServices implements MRSServices {
             Iterable<CSVRecord> rentalsList = format.parse(in);            
             
             for (CSVRecord r : rentalsList) {
-                UUID id = UUID.fromString(r.get(RentalHeaders.ID));
+                long id = Long.parseLong(r.get(RentalHeaders.ID));
                 LocalDate rentaldate = LocalDate.parse(r.get(RentalHeaders.RentalDate));
-                UUID userId = UUID.fromString(r.get(RentalHeaders.UserID));
-                UUID movieId = UUID.fromString(r.get(RentalHeaders.MovieID));
+                long userId = Long.parseLong(r.get(RentalHeaders.UserID));
+                long movieId = Long.parseLong(r.get(RentalHeaders.MovieID));
                 User u = users.get(userId);
                 Movie m = movies.get(movieId);
                 Rental rental = new Rental(u, m, rentaldate);
-                rental.setRentalId(id);
+                setId(rental, id);
                 rentals.put(id, rental);
             }
         } catch (Exception e) {
@@ -242,7 +253,7 @@ public class SimpleMRSServices implements MRSServices {
     }
     
     enum MovieHeaders {
-        ID, Title, ReleaseDate, PriceCategory, AgeRating
+        ID, Title, ReleaseDate, AgeRating
     }
 
     enum UserHeaders {
@@ -253,10 +264,10 @@ public class SimpleMRSServices implements MRSServices {
         ID, RentalDate, UserID, MovieID
     }
 
-    @Override
-    public boolean deleteRental(UUID id) {
-        // TODO Auto-generated method stub
-        return false;
+    private void setId(Object o, long id) throws Exception {
+        Field f = o.getClass().getDeclaredField("id");
+        f.setAccessible(true);
+        f.setLong(o, id);
     }
 
 }

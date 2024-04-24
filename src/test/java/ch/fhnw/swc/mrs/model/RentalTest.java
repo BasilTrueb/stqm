@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,44 +21,30 @@ public class RentalTest {
 
     private User mickey, donald;
     private Movie theKid, goldrush;
-    private PriceCategory pc;
     private LocalDate today;
-
-    private UUID mickeyid;
-    private UUID donaldid;
-    private UUID kidid;
-    private UUID goldid;
 
     /**
      * Creates legal User and Movie objects and sets the reference time stamp to now.
      */
     @BeforeEach
     public void setUp() {
-        mickeyid = UUID.randomUUID();
-        donaldid = UUID.randomUUID();
-        kidid = UUID.randomUUID();
-        goldid = UUID.randomUUID();
-
         today = LocalDate.now();
-        pc = RegularPriceCategory.getInstance();
         mickey = new User("Mouse", "Mickey", today);
-        mickey.setUserid(mickeyid);
         donald = new User("Duck", "Donald", today);
-        donald.setUserid(donaldid);
-        theKid = new Movie("The Kid", today, pc, 0);
-        theKid.setMovieid(kidid);
-        goldrush = new Movie("Goldrush", today, pc, 0);
-        goldrush.setMovieid(goldid);
+        theKid = new Movie("The Kid", today, 0);
+        goldrush = new Movie("Goldrush", today, 0);
     }
 
     @DisplayName("Does Rental object get initialized correctly with constructor?")
     @Test
     public void testRentalCtorWithRentalDate() {
         Rental r = new Rental(mickey, theKid, today.minusDays(6));
-        doAssertionsForTestRental(kidid, r);
+        doAssertionsForTestRental(r);
     }
 
-    private void doAssertionsForTestRental(UUID expected, Rental r) {
+    private void doAssertionsForTestRental(Rental r) {
+        // new rental should not have an id yet
+        assertEquals(0, r.getRentalId());
         // is the rental registered with the user?
         assertTrue(mickey.getRentals().contains(r));
         // has the movie's rented state been set to rented?
@@ -105,12 +90,12 @@ public class RentalTest {
     @Test
     public void testRentMoreThanAllowedNumberOfMovies() {
         for (int i = 0; i < User.MAX_RENTABLE_MOVIES; i++) {
-            Movie m = new Movie("Movie" + String.valueOf(i), today, pc, 0); // generate enumerated
-                                                                            // Movies
+            Movie m = new Movie("Movie" + String.valueOf(i), today, 0); // generate enumerated
+                                                                        // Movies
             new Rental(mickey, m, today);
         }
         Throwable t = assertThrows(MovieRentalException.class, () -> {
-            Movie m = new Movie("MovieInExcess", today, pc, 0);
+            Movie m = new Movie("MovieInExcess", today, 0);
             new Rental(mickey, m, today);
         });
         assertEquals(Rental.EXC_TOO_MANY_MOVIES_RENTED, t.getMessage());
@@ -124,20 +109,6 @@ public class RentalTest {
 
         int days = r.getRentalDays();
         assertEquals(6, days);
-    }
-
-    @DisplayName("Do Id getter and setter work correctly and prevent setting id once it is set?")
-    @Test
-    public void testSetterGetterId() {
-        Rental r = new Rental(mickey, theKid, today);
-        UUID xid = UUID.randomUUID();
-        UUID yid = UUID.randomUUID();
-        r.setRentalId(xid);
-        assertEquals(xid, r.getRentalId());
-
-        // setting id a 2nd time
-        assertThrows(IllegalStateException.class, () -> r.setRentalId(yid));
-        assertEquals(xid, r.getRentalId());
     }
 
     @DisplayName("Do Movie getter and setter work correctly and prevent setting null Movie?")
@@ -171,9 +142,6 @@ public class RentalTest {
         theKid.setRented(false);
         Rental y = new Rental(mickey, theKid, today);
 
-        UUID xid = UUID.randomUUID();
-        x.setRentalId(xid);
-        y.setRentalId(xid);
         assertEquals(x.hashCode(), y.hashCode());
 
         x.setMovie(goldrush);

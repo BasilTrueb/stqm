@@ -1,17 +1,25 @@
 package ch.fhnw.swc.mrs.model;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import ch.fhnw.swc.mrs.api.MovieRentalException;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 /**
  * Represents the client of a movie store.
  * 
  */
+@Entity
+@Table(name = "USERS")
 public class User {
 
     /** Maximum age for a new user: {@value}. */
@@ -31,19 +39,34 @@ public class User {
     public static final String EXC_ID_FIXED = "Id cannot be changed for users";
 
     /** Unique identification for this user object. */
-    private UUID userid;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "USERID")
+    private long id;
+    
     /** The user's family name. */
+    @Column(name = "NAME", nullable = false)
     private String name = "Unnamed";
+
     /** The user's first name. */
+    @Column(name = "FIRSTNAME", nullable = false)
     private String firstname = "Unnamed";
+
     /** The user's date of birth is used to check age ratings. */
+    @Column(name = "BIRTHDATE", nullable = false)
     private LocalDate birthdate;
 
     /**
      * A list of rentals of the user.
      */
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Rental> rentals = new LinkedList<Rental>();
 
+    /**
+     * Used by JPA.
+     */
+    protected User() { }
+    
     /**
      * Create a new user with the given name information.
      * 
@@ -59,19 +82,6 @@ public class User {
     }
 
     /**
-     * creates a user with a UUID.
-     * 
-     * @param anID uuid
-     * @param aName user lastname
-     * @param aFirstName first name
-     * @param aBirthdate user's birthdate
-     */
-    public User(UUID anID, String aName, String aFirstName, LocalDate aBirthdate) {
-        initializeUser(aName, aFirstName, aBirthdate);
-        setUserid(anID);
-    }
-
-    /**
      * Create a new user with the given name information.
      * 
      * @param aName the user's family name.
@@ -81,10 +91,10 @@ public class User {
      * @throws MovieRentalException If the name is empty ("") or longer than MAX_NAME_LENGTH
      *             characters.
      */
-    public User(String aName, String aFirstName, String aBirthdate) {
-        LocalDate birthDate = LocalDate.parse(aBirthdate, DateTimeFormatter.ISO_DATE);
-        initializeUser(aName, aFirstName, birthDate);
-    }
+//    public User(String aName, String aFirstName, String aBirthdate) {
+//        LocalDate birthDate = LocalDate.parse(aBirthdate, DateTimeFormatter.ISO_DATE);
+//        initializeUser(aName, aFirstName, birthDate);
+//    }
 
     private void initializeUser(String aName, String aFirstName, LocalDate aBirthdate) {
         setName(aName);
@@ -123,19 +133,17 @@ public class User {
      * @return The user's unique identification number.
      * @throws IllegalStateException when trying to retrieve id before it was set.
      */
-    public UUID getUserid() {
-        return userid;
+    public long getUserid() {
+        return id;
     }
-
+    
     /**
-     * @param anID set the user's unique identification number.
-     * @throws IllegalStateException when trying to re-set id.
+     * An id can only be set once.
+     * @param id the id to use for this user
      */
-    public void setUserid(UUID anID) {
-        if (userid != null) {
-            throw new IllegalStateException(EXC_ID_FIXED);
-        } else {
-            userid = anID;
+    public void setUserId(long id) {
+        if (this.id == 0 && id != 0) {
+            this.id = id;
         }
     }
 
@@ -221,7 +229,7 @@ public class User {
     public double getCharge() {
         double result = 0.0d;
         for (Rental rental : rentals) {
-            result += rental.getMovie().getPriceCategory().getCharge(rental.getRentalDays());
+            result += rental.getRentalFee();
         }
         return result;
     }
@@ -243,7 +251,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        int result = (getUserid() != null) ? getUserid().hashCode() : 0;
+        int result = (int) getUserid();
         result = 19 * result + getName().hashCode();
         result = 19 * result + getFirstName().hashCode();
         return result;
@@ -267,5 +275,15 @@ public class User {
     public int addRental(Rental rental) {
         rentals.add(rental);
         return rentals.size();
+    }
+
+    /**
+     * remove a rental from the user's rental list.
+     * @param rental the rental to be removed
+     * @return true if successful removed, otherwise false
+     */
+    public boolean removeRental(Rental rental) {
+        return rentals.remove(rental);
+
     }
 }

@@ -156,48 +156,21 @@
                 </dependencies>
             </plugin>
 
-
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven.version}</version>
-                <executions>
-                    <execution>
-                        <id>default-prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-check</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>CLASS</element>
-                                    <excludes>
-                                        <exclude>ch.fhnw.swc.mrs.data.*</exclude>
-                                        <exclude>ch.fhnw.swc.mrs.api.*</exclude>
-                                    </excludes>
-                                </rule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe.version}</version>
-                <configuration>
-                    <!-- set fork count explicitly to avoid fork errors during test see 
-                        https://stackoverflow.com/questions/9320620/maven-surefire-plugin-error-occured-in-starting-fork-check-output-in-log -->
+<!--                <configuration>
+                    set fork count explicitly to avoid fork errors during test see 
+                        https://stackoverflow.com/questions/9320620/maven-surefire-plugin-error-occured-in-starting-fork-check-output-in-log 
                     <forkCount>0</forkCount>
                     <groups>integration</groups>
-                </configuration>
+                </configuration> -->
+                <configuration>
+					<includes>
+                        <include>**/IT*.java</include>
+                    </includes>
+				</configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -279,19 +252,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <!-- select non-aggregate reports -->
-                            <report>report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
         </plugins>
 
     </reporting>
@@ -370,36 +330,30 @@
         </dependency>
 
         <dependency>
-            <groupId>org.sql2o</groupId>
-            <artifactId>sql2o</artifactId>
-            <version>${sql2o.version}</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.1.4.Final</version>
         </dependency>
 
         <dependency>
-            <groupId>org.sql2o.extensions</groupId>
-            <artifactId>sql2o-postgres</artifactId>
-            <version>${sql2o.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.dbunit</groupId>
-            <artifactId>dbunit</artifactId>
-            <version>${dbunit.version}</version>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.7.1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <version>${otj-pg-embedded.version}</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.22.0</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-db</artifactId>
+            <version>2.0.2</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
@@ -407,15 +361,6 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>${commons-cli.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/junit/junit -->
-        <!-- Needed by dbunit -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
 

@@ -1,32 +1,16 @@
 package ch.fhnw.swc.mrs.data;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-
-import javax.sql.DataSource;
-
-import org.postgresql.ds.PGSimpleDataSource;
-import org.sql2o.Sql2o;
-import org.sql2o.converters.Converter;
-import org.sql2o.converters.UUIDConverter;
-import org.sql2o.quirks.PostgresQuirks;
 
 import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.model.Movie;
-import ch.fhnw.swc.mrs.model.PriceCategory;
 import ch.fhnw.swc.mrs.model.Rental;
 import ch.fhnw.swc.mrs.model.User;
-import ch.fhnw.swc.mrs.util.LocalDateConverter;
-import ch.fhnw.swc.mrs.util.PriceCategoryConverter;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 /**
  * A MRSServices facade for PostresqlDB access
@@ -34,77 +18,35 @@ import ch.fhnw.swc.mrs.util.PriceCategoryConverter;
  */
 public class DbMRSServices implements MRSServices {
 
-    private PGSimpleDataSource datasource;
-    private Sql2o sql2o;
+    private EntityManagerFactory emf;
+    private EntityManager em;
 
     /**
      * A MRSServices facade for PostresqlDB is initialized according to the passed config.
      * 
-     * @param pathToConfig the classpath to the database configuration file
      * @throws IOException if config file not found
      */
-    public DbMRSServices(String pathToConfig) throws IOException {
-
-        Properties config = readDbConfig(pathToConfig);
-
-        String userName = config.getProperty("user");
-        String password = config.getProperty("pwd");
-        String url = config.getProperty("url");
-        datasource = new PGSimpleDataSource();
-        datasource.setUrl(url);
-        datasource.setUser(userName);
-        datasource.setPassword(password);
-
-        // Important: do not forget to register special data types
-        @SuppressWarnings("rawtypes")
-        Map<Class, Converter> converters = new HashMap<>();
-        converters.put(UUID.class, new UUIDConverter());
-        converters.put(LocalDate.class, new LocalDateConverter());
-        converters.put(PriceCategory.class, new PriceCategoryConverter());
-
-        sql2o = new Sql2o(datasource, new PostgresQuirks(converters));
-    }
-
-    /**
-     * Retrieve the data source used in this service.
-     * @return the data source of this service.
-     */
-    public DataSource getDataSource() {
-        return datasource;
-    }
-
-    /**
-     * note: getResourceAsStream works with classpath
-     * https://stackoverflow.com/questions/18053059/getresourceasstream-is-returning-null-properties-file-is-not-loading
-     * 
-     * @param configFile
-     * @return
-     * @throws IOException
-     */
-    private Properties readDbConfig(String configFile) throws IOException {
-        Properties prop = new Properties();
-        InputStream input = getClass().getResourceAsStream(configFile);
-        prop.load(input);
-        return prop;
+    public DbMRSServices() {        
+        emf = Persistence.createEntityManagerFactory("MRS.Production");
+        em = emf.createEntityManager();
     }
 
     private MovieDAO getMovieDAO() {
-        return new MovieDAO(sql2o);
+        return new MovieDAO(em);
     }
 
     private UserDAO getUserDAO() {
-        return new UserDAO(sql2o);
+        return new UserDAO(em);
     }
 
     private RentalDAO getRentalDAO() {
-        return new RentalDAO(sql2o);
+        return new RentalDAO(em);
     }
 
     @Override
-    public Movie createMovie(String aTitle, LocalDate aReleaseDate, String aPriceCategory, int anAgeRating) {
+    public Movie createMovie(String aTitle, LocalDate aReleaseDate, int anAgeRating) {
         try {
-            PriceCategory pc = PriceCategory.getPriceCategoryFromId(aPriceCategory);
-            Movie m = new Movie(aTitle, aReleaseDate, pc, anAgeRating);
+            Movie m = new Movie(aTitle, aReleaseDate, anAgeRating);
             getMovieDAO().saveOrUpdate(m);
             return m;
         } catch (Exception e) {
@@ -124,7 +66,7 @@ public class DbMRSServices implements MRSServices {
     }
 
     @Override
-    public Movie getMovieById(UUID id) {
+    public Movie getMovieById(long id) {
         return getMovieDAO().getById(id);
     }
 
@@ -140,9 +82,10 @@ public class DbMRSServices implements MRSServices {
     }
 
     @Override
-    public boolean deleteMovie(UUID id) {
+    public boolean deleteMovie(long id) {
         try {
-            getMovieDAO().delete(id);
+            Movie m = getMovieDAO().getById(id);
+            getMovieDAO().delete(m);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,7 +99,7 @@ public class DbMRSServices implements MRSServices {
     }
 
     @Override
-    public User getUserById(UUID id) {
+    public User getUserById(long id) {
         return getUserDAO().getById(id);
     }
 
@@ -190,9 +133,10 @@ public class DbMRSServices implements MRSServices {
     }
 
     @Override
-    public boolean deleteUser(UUID id) {
+    public boolean deleteUser(long id) {
         try {
-            getUserDAO().delete(id);
+            User u = getUserDAO().getById(id);
+            getUserDAO().delete(u);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -206,70 +150,36 @@ public class DbMRSServices implements MRSServices {
     }
 
     @Override
-    public Rental createRental(UUID userId, UUID movieId, LocalDate d) {
+    public Rental createRental(long userId, long movieId, LocalDate d) {
         // TO-DO: transaction is missing
         User u = getUserDAO().getById(userId);
         Movie m = getMovieDAO().getById(movieId);
 
         if (u != null && m != null && !m.isRented() && !d.isAfter(LocalDate.now())) {
-            UUID rentalId = getRentalDAO().create(userId, movieId, d);
+            Rental r = new Rental(u, m, d);
+            getRentalDAO().save(r);
             m.setRented(true);
             getMovieDAO().saveOrUpdate(m);
-            return getRentalDAO().getById(rentalId);
+            return r;
         }
         return null;
     }
 
     @Override
-    public boolean deleteRental(UUID id) {
+    public boolean deleteRental(long id) {
         RentalDAO rdao = getRentalDAO();
         Rental r = rdao.getById(id);
         Movie m = r.getMovie();
         m.setRented(false);
         getMovieDAO().saveOrUpdate(m);
-        rdao.delete(id);
+        rdao.delete(r);
         return r != null;
     }
 
     @Override
-    public void createDB() {
-        try (Connection conn = datasource.getConnection()) {
-            Statement statement = conn.createStatement();
-            statement.execute(CREATE_MOVIES_TABLE);
-            statement.execute(CREATE_USERS_TABLE);
-            statement.execute(CREATE_REANTALS_TABLE);
-        } catch (SQLException se) {
-            se.printStackTrace();
-        }
-    }
+    public void createDB() { }
 
     @Override
-    public void removeDB() {
-        try (Connection conn = datasource.getConnection()) {
-            Statement statement = conn.createStatement();
-            statement.execute(DROP_RENTALS_TABLE);
-            statement.execute(DROP_MOVIES_TABLE);
-            statement.execute(DROP_USERS_TABLE);
-        } catch (SQLException se) {
-            se.printStackTrace();
-        }
-    }
+    public void removeDB() { }
 
-    private static final String CREATE_MOVIES_TABLE = "CREATE TABLE IF NOT EXISTS movies ( " + "MovieId uuid NOT NULL, "
-            + "Title text NOT NULL, " + "Rented boolean NOT NULL, " + "ReleaseDate date NOT NULL, "
-            + "PriceCategory text NOT NULL, " + "AgeRating integer NOT NULL, "
-            + "CONSTRAINT movies_pkey PRIMARY KEY (MovieId)" + ");";
-    private static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users ( " + "UserId uuid NOT NULL, "
-            + "Name text NOT NULL, " + "FirstName text NOT NULL, " + "Birthdate date NOT NULL, "
-            + "CONSTRAINT users_pkey PRIMARY KEY (UserId) " + ");";
-    private static final String CREATE_REANTALS_TABLE = "CREATE TABLE IF NOT EXISTS rentals ( "
-            + "RentalId uuid NOT NULL, " + "MovieId uuid NOT NULL, " + "UserId uuid NOT NULL, "
-            + "RentalDate date NOT NULL, " + "CONSTRAINT rentals_pkey PRIMARY KEY (RentalId), "
-            + "CONSTRAINT NoDuplicateRentals UNIQUE (MovieId, UserId), " + "CONSTRAINT movieFK FOREIGN KEY (MovieId) "
-            + "    REFERENCES movies (MovieId) MATCH SIMPLE " + "    ON UPDATE NO ACTION " + "    ON DELETE NO ACTION, "
-            + "CONSTRAINT userFK FOREIGN KEY (UserId) " + "    REFERENCES users (UserId) MATCH SIMPLE "
-            + "    ON UPDATE NO ACTION " + "    ON DELETE NO ACTION " + ");";
-    private static final String DROP_MOVIES_TABLE = "DROP TABLE movies";
-    private static final String DROP_USERS_TABLE = "DROP TABLE users";
-    private static final String DROP_RENTALS_TABLE = "DROP TABLE rentals";
 }

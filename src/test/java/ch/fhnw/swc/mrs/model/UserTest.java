@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,10 +21,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 public class UserTest {
@@ -104,15 +105,6 @@ public class UserTest {
         assertEquals(User.EXC_ILLEGAL_NAME, e.getMessage());
     }
 
-    @Test
-    public void testSetterGetterId() {
-        User u = new User(NAME, FIRSTNAME, LocalDate.now());
-        UUID uid = UUID.randomUUID();
-        u.setUserid(uid);
-        assertEquals(uid, u.getUserid());
-        assertThrows(IllegalStateException.class, () -> u.setUserid(UUID.randomUUID()));
-    }
-
     /**
      * Test method for {@link ch.fhnw.edu.rental.model.User#getRentals()} . Test method for
      * {@link ch.fhnw.edu.rental.model.User#setRentals()}.
@@ -181,19 +173,17 @@ public class UserTest {
         double charge = u.getCharge();
         assertEquals(0.0d, charge, delta);
 
-        PriceCategory regular = RegularPriceCategory.getInstance();
-
         // first check regular movie
-        Movie mov = new Movie("A", today, regular, 0);
+        Movie mov = new Movie("A", today, 0);
         Rental r = new Rental(u, mov, today);
         charge = r.getRentalFee();
         assertEquals(charge, u.getCharge(), delta);
 
         // now add another two regular movies
-        mov = new Movie("B", today, regular, 0);
+        mov = new Movie("B", today, 0);
         r = new Rental(u, mov, today);
         charge += r.getRentalFee();
-        mov = new Movie("C", today, regular, 0);
+        mov = new Movie("C", today, 0);
         r = new Rental(u, mov, today);
         charge += r.getRentalFee();
         assertEquals(charge, u.getCharge(), delta);
@@ -203,21 +193,11 @@ public class UserTest {
     public void testEquals() throws Exception {
         User u1 = new User(NAME, FIRSTNAME, LocalDate.now());
         User u2 = new User(NAME, FIRSTNAME, LocalDate.now());
-        UUID xid = UUID.randomUUID();
-        UUID yid = UUID.randomUUID();
-        u1.setUserid(xid);
-        u2.setUserid(xid);
         assertTrue(u1.equals(u1));
         assertFalse(u1.equals(NAME));
         assertTrue(u1.equals(u2));
         assertTrue(u2.equals(u1));
-        u2 = new User(NAME, FIRSTNAME, LocalDate.now());
-        u2.setUserid(yid);
-        assertFalse(u1.equals(u2));
-        assertFalse(u2.equals(u1));
-        u1 = new User(NAME, FIRSTNAME, LocalDate.now());
-        u1.setUserid(yid);
-        assertTrue(u1.equals(u2));
+
         u1.setName("Meier");
         assertFalse(u1.equals(u2));
         assertFalse(u2.equals(u1));
@@ -228,6 +208,12 @@ public class UserTest {
         assertFalse(u2.equals(u1));
         u2.setFirstName("Hans");
         assertTrue(u1.equals(u2));
+
+        /* change id of u2. */
+        u2 = new User(NAME, FIRSTNAME, LocalDate.now());
+        setField(u2, 5);
+        assertFalse(u1.equals(u2));
+        assertFalse(u2.equals(u1));
     }
 
     @Test
@@ -236,12 +222,15 @@ public class UserTest {
         User x = new User(NAME, FIRSTNAME, LocalDate.now());
         User y = new User(NAME, FIRSTNAME, LocalDate.now());
 
-        UUID xid = UUID.randomUUID();
         assertEquals(x.hashCode(), y.hashCode());
-        x.setUserid(xid);
-        assertTrue(x.hashCode() != y.hashCode());
-        y.setUserid(xid);
-        assertEquals(x.hashCode(), y.hashCode());
+        
+        setField(x, 5);
+        assertNotEquals(x.hashCode(), y.hashCode());
     }
 
+    private void setField(User user, long value) throws Exception {
+        Field field = User.class.getDeclaredField("id");
+        field.setAccessible(true);
+        field.setLong(user, 5);
+    }
 }

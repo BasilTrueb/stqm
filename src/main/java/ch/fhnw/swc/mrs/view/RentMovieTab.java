@@ -24,7 +24,6 @@ public class RentMovieTab extends JPanel {
     JTextField rentalDate = new JTextField();
     JTextField firstname = new JTextField();
     JTextField surname = new JTextField();
-    JTextField id = new JTextField();
 
     JButton getUser = new JButton("get User");
     JButton save = new JButton("Save");
@@ -37,8 +36,8 @@ public class RentMovieTab extends JPanel {
     private RentMovieController controller;
 
     protected static final DateTimeFormatter SDF = DateTimeFormatter.ISO_DATE;
-    private static final String[] HEADERS = new String[] { "Movie ID", "Title", "Release Date", "Price Category" };
-    private static final Class<?>[] TYPES = new Class[] { Long.class, String.class, Object.class, Object.class };
+    private static final String[] HEADERS = new String[] { "Movie ID", "Title", "Release Date" };
+    private static final Class<?>[] TYPES = new Class[] { Long.class, String.class, Object.class };
 
     /**
      * Create and initialize the content of the "Rent a Movie" tab.
@@ -76,13 +75,6 @@ public class RentMovieTab extends JPanel {
         surname.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 surNameTextFieldKeyPressed(evt);
-            }
-        });
-
-        id.setToolTipText("Enter customer id to find a customer.");
-        id.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                userIdForTextFieldKeyPressed(evt);
             }
         });
 
@@ -146,8 +138,7 @@ public class RentMovieTab extends JPanel {
                                         .addComponent(surname, GroupLayout.PREFERRED_SIZE, 80,
                                                 GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18).addComponent(userIdLabel)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(id, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED))
                                 .addComponent(firstname).addComponent(rentalDate).addComponent(birthdate))
                         .addGap(68, 68, 68).addComponent(newUser)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(getUser)
@@ -165,8 +156,6 @@ public class RentMovieTab extends JPanel {
                                                 .addComponent(surname, GroupLayout.PREFERRED_SIZE,
                                                         GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(userIdLabel)
-                                                .addComponent(id, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-                                                        GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(getUser).addComponent(newUser))
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(mainPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -212,15 +201,6 @@ public class RentMovieTab extends JPanel {
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
             controller.handleClearAll();
         } else if (evt.getKeyCode() == KeyEvent.VK_TAB) {
-            birthdate.requestFocus();
-        }
-    }
-
-    private void userIdForTextFieldKeyPressed(java.awt.event.KeyEvent evt) {
-        if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            controller.handleClearAll();
-        } else if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            controller.handleGetUser();
             birthdate.requestFocus();
         }
     }

@@ -1,7 +1,6 @@
 package ch.fhnw.swc.mrs;
 
 import ch.fhnw.swc.mrs.data.SimpleMRSServices;
-import ch.fhnw.swc.mrs.model.PriceCategoryLoader;
 import ch.fhnw.swc.mrs.view.MainController;
 
 /**
@@ -27,7 +26,6 @@ public class MovieRentalSystem {
      * @throws Exception whenever something goes wrong.
      */
     public static void main(String[] args) throws Exception {
-        PriceCategoryLoader.load();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MovieRentalSystem().start();

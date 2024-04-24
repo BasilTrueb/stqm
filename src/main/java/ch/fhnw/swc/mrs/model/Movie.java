@@ -1,15 +1,22 @@
 package ch.fhnw.swc.mrs.model;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 /**
  * Represents a movie.
  */
+@Entity
+@Table(name = "MOVIES")
 public class Movie {
     static final int MIN_AGE_RATING_AGE = 0;
     static final int MAX_AGE_RATING_AGE = 18;
@@ -23,81 +30,68 @@ public class Movie {
     public static final String EXC_MISSING_TITLE = "Title must not be null nor emtpy";
     /** Exception text: Release date must not be null. */
     public static final String EXC_MISSING_RELEASE_DATE = "Release date must not be null";
-    /** Exception text: price category must not be null. */
-    public static final String EXC_MISSING_PRICE_CATEGORY = "price category must not be null";
 
-    private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "MOVIEID")
+    private long id;
+    
+    @Column(name = "RENTED", nullable = false)
     private boolean rented = false;
+    
+    @Column(name = "TITLE", nullable = false)
     private String title = "Untitled";
+    
+    @Column(name = "RELEASEDATE", nullable = false)
     private LocalDate releaseDate;
-    private PriceCategory priceCategory;
+    
+    @Column(name = "AGERATING", nullable = false)
     private int ageRating;
 
     /** Logger used to produce logs. */
     private static Logger log = LogManager.getLogger(Movie.class);
 
     /**
-     * Objects initialized with this constructor are not ready for use. They must be assigned an id!
-     * 
-     * @param aTitle Title of the movie. Must not be null nor empty.
-     * @param aReleaseDate Date when this movie was released. Must not be null.
-     * @param aPriceCategory Price category for this movie. Must not be null.
-     * @param anAgeRating How old a user must be at least to be allowed to rent this Movie. A value
-     *            between [0, 18].
-     * @throws IllegalArgumentException in case, any of the parameters are null or title is empty.
+     * Used by JPA.
      */
-    public Movie(String aTitle, LocalDate aReleaseDate, PriceCategory aPriceCategory, int anAgeRating) {
-        log.trace("entering Movie(String, Date, PriceCategory, int)");
-        initializeMovie(aTitle, aReleaseDate, aPriceCategory, anAgeRating);
-        log.trace("exiting Movie(String, Date, PriceCategory, int)");
-    }
-
+    protected Movie() { }
+    
     /**
      * Objects initialized with this constructor are not ready for use. They must be assigned an id!
      * 
      * @param aTitle Title of the movie. Must not be null nor empty.
      * @param aReleaseDate Date when this movie was released. Must not be null.
-     * @param aPriceCategory Name of a price category for this movie. Must not be null.
      * @param anAgeRating How old a user must be at least to be allowed to rent this Movie. A value
      *            between [0, 18].
      * @throws IllegalArgumentException in case, any of the parameters are null or title is empty.
      */
-    public Movie(String aTitle, String aReleaseDate, String aPriceCategory, int anAgeRating) {
-        LocalDate relDate = LocalDate.parse(aReleaseDate, DateTimeFormatter.ISO_DATE);
-        PriceCategory pc = PriceCategory.getPriceCategoryFromId(aPriceCategory);
-        initializeMovie(aTitle, relDate, pc, anAgeRating);
-    }
-
-    private void initializeMovie(String aTitle, LocalDate aReleaseDate, PriceCategory aPriceCategory, int anAgeRating) {
+    public Movie(String aTitle, LocalDate aReleaseDate, int anAgeRating) {
+        log.trace("entering Movie(String, Date, int)");
         setTitle(aTitle);
         setReleaseDate(aReleaseDate);
-        setPriceCategory(aPriceCategory);
         setAgeRating(anAgeRating);
+        log.trace("exiting Movie(String, Date, int)");
     }
 
     /**
      * @return unique identification number of this Movie.
      * @throws IllegalStateException when trying to retrieve id before it was set.
      */
-    public UUID getMovieid() {
+    public long getMovieid() {
         log.trace("in getId");
         return id;
     }
 
     /**
-     * @param anId set an unique identification number for this Movie.
-     * @throws IllegalStateException when trying to re-set id.
+     * An id can only be set once.
+     * @param id the id to use for this movie
      */
-    public void setMovieid(UUID anId) {
-        log.trace("entering setId");
-        if (id != null) {
-            log.trace("exiting setId throwing IllegalStateException");
-            throw new IllegalStateException(EXC_ID_FIXED);
+    public void setMovieId(long id) {
+        if (this.id == 0 && id != 0) {
+            this.id = id;
         }
-        id = anId;
-        log.trace("exiting setId");
     }
-
+    
     /**
      * @return The title of this Movie.
      */
@@ -158,27 +152,6 @@ public class Movie {
     }
 
     /**
-     * @return PriceCategory of this Movie.
-     */
-    public PriceCategory getPriceCategory() {
-        log.trace("in releaseDateProperty");
-        return priceCategory;
-    }
-
-    /**
-     * @param aPriceCategory set PriceCategory for this Movie.
-     */
-    public void setPriceCategory(PriceCategory aPriceCategory) {
-        log.trace("entering setPriceCategory");
-        if (aPriceCategory == null) {
-            log.trace("exiting setPriceCategory throwing IllegalArgumentException");
-            throw new IllegalArgumentException(EXC_MISSING_PRICE_CATEGORY);
-        }
-        priceCategory = aPriceCategory;
-        log.trace("exiting setPriceCategory");
-    }
-
-    /**
      * @return The minimum age for being allowed to rent this movie.
      */
     public int getAgeRating() {
@@ -203,7 +176,7 @@ public class Movie {
     public int hashCode() {
         log.trace("entering hashCode");
         final int prime = 31;
-        int result = prime + getMovieid().hashCode();
+        int result = prime + (int) getMovieid();
         result = prime * result + ((getReleaseDate() == null) ? 0 : getReleaseDate().hashCode());
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
         log.trace("exiting hashCode");
@@ -230,7 +203,7 @@ public class Movie {
 
     private boolean areAttributesEqual(final Movie other) {
         log.trace("entering areAttributesEqual");
-        if (!getMovieid().equals(other.getMovieid())) {
+        if (getMovieid() != other.getMovieid()) {
             log.trace("exiting areAttributesEqual on different id");
             return false;
         }
@@ -242,11 +215,6 @@ public class Movie {
 
         if (!getTitle().equals(other.getTitle())) {
             log.trace("exiting areAttributesEqual on different title");
-            return false;
-        }
-
-        if (!getPriceCategory().equals(other.getPriceCategory())) {
-            log.trace("exiting areAttributesEqual on different price category");
             return false;
         }
 

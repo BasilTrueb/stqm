@@ -12,10 +12,10 @@ import static spark.Spark.put;
 import static spark.Spark.halt;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -55,7 +55,7 @@ public final class UserController {
     };
 
     private static Route fetchOneUser = (Request request, Response response) -> {
-        UUID id = getParamId(request);
+        long id = getParamId(request);
         User u = backend.getUserById(id);
         String body = "";
         if (u == null) {
@@ -68,7 +68,7 @@ public final class UserController {
     };
 
     private static Route deleteUser = (Request request, Response response) -> {
-        UUID id = getParamId(request);
+        long id = getParamId(request);
         if (backend.deleteUser(id)) {
             response.status(StatusCodes.NO_CONTENT);
         } else {
@@ -95,13 +95,13 @@ public final class UserController {
 
     private static Route updateUser = (Request request, Response response) -> {
         // get the id from the route param
-        UUID id = getParamId(request);
+        long id = getParamId(request);
         
         // get the new data from the body
         String json = request.body();
         User u = (User) jsonToData(json, User.class);
         
-        if (!id.equals(u.getUserid())) {
+        if (id != u.getUserid()) {
             halt(StatusCodes.BAD_REQUEST, "request id does not correspond with user id");
         }
         if (!backend.updateUser(u)) {
@@ -147,7 +147,7 @@ public final class UserController {
         @Override
         public void serialize(User u, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeStringField("id", u.getUserid().toString());
+            jgen.writeNumberField("id", u.getUserid());
             jgen.writeStringField("name", u.getName());
             jgen.writeStringField("firstname", u.getFirstName());
             jgen.writeStringField("birthDate", u.getBirthdate().format(DateTimeFormatter.ISO_DATE));
@@ -177,9 +177,11 @@ public final class UserController {
             String name = node.get("name").asText();
             String firstname = node.get("firstname").asText();
             String birthdate = node.get("birthDate").asText();
-            User u = new User(name, firstname, birthdate);
+            LocalDate dateOfBirth = LocalDate.parse(birthdate, DateTimeFormatter.ISO_DATE);
+            User u = new User(name, firstname, dateOfBirth);
             if (node.get("id") != null) {
-                u.setUserid(UUID.fromString(node.get("id").asText()));
+                long id = node.get("id").asLong();
+                u.setUserId(id);
             }
             return u;
         }

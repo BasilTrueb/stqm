@@ -4,7 +4,6 @@ import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.controller.MovieController;
 import ch.fhnw.swc.mrs.controller.UserController;
 import ch.fhnw.swc.mrs.data.SimpleMRSServices;
-import ch.fhnw.swc.mrs.model.PriceCategoryLoader;
 import ch.fhnw.swc.mrs.util.Filters;
 import static spark.Spark.port;
 import static spark.Spark.staticFiles;
@@ -23,8 +22,6 @@ public final class Application {
      * @throws Exception whenever something goes wrong.
      */
     public static void main(String[] args) throws Exception {
-        PriceCategoryLoader.load();
-        
         // Instantiate dependencies
         MRSServices backend = new SimpleMRSServices();
         backend.createDB();

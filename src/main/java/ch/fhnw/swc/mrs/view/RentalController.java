@@ -1,7 +1,6 @@
 package ch.fhnw.swc.mrs.view;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.swing.table.DefaultTableModel;
 import ch.fhnw.swc.mrs.model.Rental;
@@ -50,7 +49,7 @@ public class RentalController extends AbstractController {
 
         int row = view.table.getSelectedRow();
         DefaultTableModel tm = (DefaultTableModel) view.table.getModel();
-        UUID id = (UUID) tm.getValueAt(row, 0);
+        long id = (long) tm.getValueAt(row, 0);
         if (getBackend().deleteRental(id)) {
             tm.removeRow(row);
             view.table.getSelectionModel().clearSelection();

@@ -1,13 +1,16 @@
 package ch.fhnw.swc.mrs.data;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.sql2o.Connection;
-import org.sql2o.Query;
-import org.sql2o.Sql2o;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import ch.fhnw.swc.mrs.api.MovieRentalException;
 import ch.fhnw.swc.mrs.model.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 /**
  * Data Access Object that provides access to the underlying database. Use this DAO to access User
@@ -15,47 +18,27 @@ import ch.fhnw.swc.mrs.model.User;
  */
 public class UserDAO {
 
-    /** SQL statement to delete user. */
-    private static final String DELETE_SQL = "DELETE FROM users WHERE userid = :userid";
-    /** SQL statement to create user. */
-    private static final String INSERT_SQL = "INSERT INTO users ( userid, firstname, name, birthdate )"
-            + " VALUES ( :userid, :firstname, :name, :birthdate )";
-    /** SQL statement to update user. */
-    private static final String UPDATE_SQL = "UPDATE users SET firstname = :firstname, name = :name, "
-            + "birthdate = :birthdate WHERE userid = :userid";
-    /** SQL statement to get user by userid. */
-    public static final String GET_BY_ID_SQL = "SELECT userid, firstname, name, "
-            + "birthdate FROM users WHERE userid = :userid";
-    /** SQL statement to get user by name. */
-    private static final String GET_BY_NAME_SQL = "SELECT userid, firstname, name, birthdate "
-            + "FROM users WHERE name = :name";
-    /** SQL statement to get all users. */
-    private static final String GET_ALL_SQL = "SELECT userid, firstname, name, birthdate FROM users";
-
-    private Sql2o sql2o;
+    /** Query to get all users. */
+    private static final String GET_ALL_USERS = "SELECT u FROM User u";
+    /** Query to get user by name. */
+    private static final String GET_USER_BY_NAME = "SELECT u FROM User u WHERE u.name = :name";
+    
+    /** Exception message when user could not be deleted. */
+    private static final String EXC_DELETE_FAILED = "User could not be deleted - maybe it didn't exist in the database";
+    /** Exception message when user could not be stored. */
+    private static final String EXC_STORE_FAILED = "User could not be saved or updated";
+    
+    private EntityManager em;
+    
+    /** Logger used to produce logs. */
+    private static Logger log = LogManager.getLogger(UserDAO.class);
 
     /**
-     * 
-     * @param sql2o sql to dao param
+     * Create a data access object (DAO) for user related database queries.
+     * @param em EntityManager to use with this DAO.
      */
-    public UserDAO(Sql2o sql2o) {
-        this.sql2o = sql2o;
-    }
-
-    /**
-     * Retrieve a user by his/her identification.
-     * 
-     * @param userid the unique identification of the user object to retrieve.
-     * @return the user with the given identification or <code>null</code> if none found.
-     */
-    public User getById(UUID userid) {
-        try (Connection conn = sql2o.open()) {
-            Query q = conn.createQuery(GET_BY_ID_SQL);
-            q.addParameter("userid", userid);
-            User result = q.executeAndFetchFirst(User.class);
-
-            return result;
-        }
+    public UserDAO(EntityManager em) {
+        this.em = em;
     }
 
     /**
@@ -64,42 +47,19 @@ public class UserDAO {
      * @return a list of all users.
      */
     public List<User> getAll() {
-        try (Connection conn = sql2o.open()) {
-            return conn.createQuery(GET_ALL_SQL).executeAndFetch(User.class);
-        }
+        TypedQuery<User> query = em.createQuery(GET_ALL_USERS, User.class);
+        List<User> result = query.getResultList();
+        return result;
     }
 
     /**
-     * Persist a User object. Use this method either when storing a new User object or for updating
-     * an existing one.
+     * Retrieve a user by his/her identification.
      * 
-     * @param user the object to persist.
+     * @param userid the unique identification of the user object to retrieve.
+     * @return the user with the given identification or <code>null</code> if none found.
      */
-    public void saveOrUpdate(User user) {
-        UUID userid = user.getUserid();
-        String sql = UPDATE_SQL;
-
-        if (userid == null) {
-            user.setUserid(UUID.randomUUID());
-            sql = INSERT_SQL;
-        }
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(sql).addParameter("userid", user.getUserid())
-                    .addParameter("firstname", user.getFirstName()).addParameter("name", user.getName())
-                    .addParameter("birthdate", user.getBirthdate()).executeUpdate();
-        }
-    }
-
-    /**
-     * Remove a user from the database. After this operation the user does not exist any more in the
-     * database. Make sure to dispose the object too!
-     * 
-     * @param userid the User to remove.
-     */
-    public void delete(UUID userid) {
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(DELETE_SQL).addParameter("userid", userid).executeUpdate();
-        }
+    public User getById(long userid) {
+        return em.find(User.class, userid);
     }
 
     /**
@@ -110,8 +70,54 @@ public class UserDAO {
      * @return a list of users with the given name.
      */
     public List<User> getByName(String name) {
-        try (Connection conn = sql2o.open()) {
-            return conn.createQuery(GET_BY_NAME_SQL).addParameter("name", name).executeAndFetch(User.class);
+        TypedQuery<User> query = em.createQuery(GET_USER_BY_NAME, User.class).setParameter("name", name);
+        List<User> result = query.getResultList();
+        return result;
+    }
+    
+    /**
+     * Persist a User object. Use this method either when storing a new User object or for updating
+     * an existing one.
+     * 
+     * @param user the object to persist.
+     */
+    public void saveOrUpdate(User user) {
+        executeInsideTransaction(em -> {
+            if (user.getUserid() != 0) {
+                em.merge(user);
+            } else {
+                em.persist(user);
+            }
+        }, EXC_STORE_FAILED);
+    }
+
+    /**
+     * Remove a user from the database. After this operation the user does not exist any more in the
+     * database. Make sure to dispose the object too!
+     * 
+     * @param user the User to remove.
+     */
+    public void delete(User user) {
+        try {
+            executeInsideTransaction(em -> {
+                User u = em.merge(user);
+                em.remove(u);
+            }, EXC_DELETE_FAILED);
+        } catch (MovieRentalException mre) {
+            log.warn(EXC_DELETE_FAILED, mre);
         }
-    };
+    }
+
+    private void executeInsideTransaction(Consumer<EntityManager> action, String message) {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            action.accept(em);
+            tx.commit();
+        } catch (Exception e) {
+            tx.rollback();
+            throw new MovieRentalException(message, e);
+        }
+    }
+
 }

@@ -1,7 +1,0 @@
-<dataset>
-    <table name="users">
-        <column>userid</column>
-        <column>firstname</column>
-        <column>name</column>
-    </table>
-</dataset>

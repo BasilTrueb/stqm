@@ -3,13 +3,11 @@ package ch.fhnw.swc.mrs.view;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 import ch.fhnw.swc.mrs.model.Movie;
-import ch.fhnw.swc.mrs.model.PriceCategory;
 
 /**
  * Java FX controller class for Movies.
@@ -35,13 +33,12 @@ public class MovieController extends AbstractController {
     }
 
     private Object[] fillInMovieArrayElement(Movie movie) {
-        Object[] result = new Object[6];
+        Object[] result = new Object[5];
         result[0] = movie.getMovieid();
         result[1] = movie.getTitle();
         result[2] = RentMovieTab.SDF.format(movie.getReleaseDate());
         result[3] = movie.isRented();
-        result[4] = movie.getPriceCategory();
-        result[5] = movie.getAgeRating();
+        result[4] = movie.getAgeRating();
         return result;
     }
 
@@ -50,13 +47,11 @@ public class MovieController extends AbstractController {
             // fill the labels with info from the MovieVM object
             view.title.setText(movie.getTitle());
             view.releaseDate.setText(movie.getReleaseDate().format(MovieTab.SDF));
-            view.priceCat.setSelectedItem(movie.getPriceCategory());
             view.ageRating.setSelectedItem(movie.getAgeRating());
         } else {
             // clear the content and set default values
             view.title.setText("");
             view.releaseDate.setText("");
-            view.priceCat.setSelectedIndex(-1);
             view.ageRating.setSelectedIndex(-1);
         }
     }
@@ -73,8 +68,6 @@ public class MovieController extends AbstractController {
             view.title.setText("");
             view.releaseDate.setEnabled(false);
             view.releaseDate.setText("");
-
-            view.priceCat.setEnabled(false);
         } else {
             handleCancel();
         }
@@ -109,15 +102,13 @@ public class MovieController extends AbstractController {
         String relDateText = view.releaseDate.getText();
         LocalDate relDate = text2Date(relDateText);
         if (editing == null) {
-            Movie m = getBackend().createMovie(view.title.getText(), relDate, (String) view.priceCat.getSelectedItem(),
+            Movie m = getBackend().createMovie(view.title.getText(), relDate,
                     (int) view.ageRating.getSelectedItem());
             DefaultTableModel tm = (DefaultTableModel) view.movieTable.getModel();
             tm.addRow(fillInMovieArrayElement(m));
         } else {
             editing.setTitle(view.title.getText());
             editing.setReleaseDate(relDate);
-            PriceCategory pc = PriceCategory.getPriceCategoryFromId((String) view.priceCat.getSelectedItem());
-            editing.setPriceCategory(pc);
             editing.setAgeRating((int) view.ageRating.getSelectedItem());
             getBackend().updateMovie(editing);
         }
@@ -143,16 +134,14 @@ public class MovieController extends AbstractController {
 
         int row = view.movieTable.getSelectedRow();
         DefaultTableModel tm = (DefaultTableModel) view.movieTable.getModel();
-        UUID id = (UUID) tm.getValueAt(row, 0);
+        long id = (long) tm.getValueAt(row, 0);
         editing = getBackend().getMovieById(id);
 
         view.title.setText(editing.getTitle());
         view.releaseDate.setText(MovieTab.SDF.format(editing.getReleaseDate()));
-        view.priceCat.setSelectedItem(editing.getPriceCategory());
 
         view.ageRating.setEnabled(true);
         view.releaseDate.setEnabled(true);
-        view.priceCat.setEnabled(true);
 
         view.title.requestFocus();
     }
@@ -165,7 +154,7 @@ public class MovieController extends AbstractController {
         view.saveMovie.setEnabled(false);
         int row = view.movieTable.getSelectedRow();
         DefaultTableModel tm = (DefaultTableModel) view.movieTable.getModel();
-        UUID id = (UUID) tm.getValueAt(row, 0);
+        long id = (long) tm.getValueAt(row, 0);
 
         if (getBackend().deleteMovie(id)) {
             tm.removeRow(row);

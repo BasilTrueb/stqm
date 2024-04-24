@@ -22,4 +22,13 @@ public class MovieRentalException extends RuntimeException implements Serializab
     public MovieRentalException(String s) {
         super(s);
     }
+    
+    /**
+     * Creates a new MovieRental Exception with a message and a root cause.
+     * @param s Description of what caused this exception.
+     * @param e the root exception causing this exception.
+     */
+    public MovieRentalException(String s, Exception e) {
+        super(s, e);
+    }
 }

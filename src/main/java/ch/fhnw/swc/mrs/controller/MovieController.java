@@ -11,9 +11,9 @@ import static spark.Spark.delete;
 import static spark.Spark.halt;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.UUID;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -51,7 +51,7 @@ public final class MovieController {
     };
 
     private static Route fetchOneMovie = (Request request, Response response) -> {
-        UUID id = getParamId(request);
+        long id = getParamId(request);
         Movie m = backend.getMovieById(id);
         String body = "";
         if (m == null) {
@@ -64,7 +64,7 @@ public final class MovieController {
     };
 
     private static Route deleteMovie = (Request request, Response response) -> {
-        UUID id = getParamId(request);
+        long id = getParamId(request);
         if (backend.deleteMovie(id)) {
             response.status(StatusCodes.NO_CONTENT);
         } else {
@@ -81,7 +81,6 @@ public final class MovieController {
         try {
             Movie m = backend.createMovie(newMovie.getTitle(), 
                     newMovie.getReleaseDate(), 
-                    newMovie.getPriceCategory().toString(),
                     newMovie.getAgeRating());
             body = dataToJson(m);
             response.status(StatusCodes.CREATED);
@@ -92,10 +91,10 @@ public final class MovieController {
     };
 
     private static Route updateMovie = (Request request, Response response) -> {
-        UUID id = getParamId(request);
+        long id = getParamId(request);
         String json = request.body();
         Movie m = (Movie) jsonToData(json, Movie.class);
-        if (!id.equals(m.getMovieid())) {
+        if (id != m.getMovieid()) {
             halt(StatusCodes.BAD_REQUEST, "request id does not correspond with movie id");
         }
         if (!backend.updateMovie(m)) {
@@ -142,11 +141,10 @@ public final class MovieController {
         @Override
         public void serialize(Movie m, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeStringField("id", m.getMovieid().toString());
+            jgen.writeNumberField("id", m.getMovieid());
             jgen.writeBooleanField("rented", m.isRented());
             jgen.writeStringField("title", m.getTitle());
             jgen.writeStringField("releaseDate", m.getReleaseDate().format(DateTimeFormatter.ISO_DATE));
-            jgen.writeStringField("priceCategory", m.getPriceCategory().toString());
             jgen.writeNumberField("ageRating", m.getAgeRating());
             jgen.writeEndObject();
         }
@@ -171,11 +169,11 @@ public final class MovieController {
         public Movie deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JacksonException {
             JsonNode node = jp.getCodec().readTree(jp);
             String title = node.get("title").asText();
-            String releaseDate = node.get("releaseDate").asText();
-            String priceCategory = node.get("priceCategory").asText();
+            String released = node.get("releaseDate").asText();
+            LocalDate releaseDate = LocalDate.parse(released, DateTimeFormatter.ISO_DATE);
             int ageRating = node.get("ageRating").asInt();
-            Movie m = new Movie(title, releaseDate, priceCategory, ageRating);
-            m.setMovieid(UUID.fromString(node.get("id").asText()));
+            Movie m = new Movie(title, releaseDate, ageRating);
+            m.setMovieId(node.get("id").asLong());
             return m;
         }
     }

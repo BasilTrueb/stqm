@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 
 @Tag("integration")
-class ITUserController {
+class IntegrationTestUserController {
 
     private String baseUrl = "http://localhost:";
 

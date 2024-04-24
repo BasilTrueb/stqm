@@ -4,13 +4,23 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 
 import ch.fhnw.swc.mrs.api.MovieRentalException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /**
  * Represents a rental.
  */
+@Entity
+@Table(name = "RENTALS")
 public class Rental {
     /** Trying to rent too many movies. */
     public static final String EXC_TOO_MANY_MOVIES_RENTED = "Max. " + User.MAX_RENTABLE_MOVIES + " Filme ausleihbar.";
@@ -33,11 +43,26 @@ public class Rental {
     /** Attempt to rent a movie when not being old enough. */
     public static final String EXC_UNDER_AGE = "User under age: may not rent this movie.";
 
-    private UUID rentalid;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "RENTALID")
+    private long id;
+
+    @OneToOne
+    @JoinColumn(name = "movieid", referencedColumnName = "movieid")
     private Movie movie;
+
+    @ManyToOne
+    @JoinColumn(name = "userid", referencedColumnName = "userid")
     private User user;
+
     private LocalDate rentalDate;
 
+    /**
+     * Used by JPA.
+     */
+    protected Rental() { }
+    
     /**
      * Constructs a rental of a movie to a user at a given date for a certain number of days.
      * <b>Note:</b> objects created with this constructor are not ready for use, they need to be
@@ -71,24 +96,19 @@ public class Rental {
     /**
      * @return the unique rental identifier.
      */
-    public UUID getRentalId() {
-        return rentalid;
+    public long getRentalId() {
+        return id;
     }
 
     /**
-     * The unique identifier can only be set once.
-     * 
-     * @param anId a unique identifier for rentals.
-     * @throws IllegalStateException if the id has already been set.
+     * An id can only be set once.
+     * @param id the id to use for this rental
      */
-    public void setRentalId(UUID anId) {
-        if (rentalid != null) {
-            throw new IllegalStateException(EXC_ID_ALREADY_SET);
-        } else {
-            rentalid = anId;
+    public void setRentalId(long id) {
+        if (this.id == 0 && id != 0) {
+            this.id = id;
         }
     }
-
     /**
      * Calculate the duration of this rental.
      * 
@@ -102,7 +122,7 @@ public class Rental {
      * @return The rental fee to pay for this rental.
      */
     public double getRentalFee() {
-        return getMovie().getPriceCategory().getCharge(getRentalDays());
+        return 5.0D;
     }
 
     /**
@@ -131,7 +151,7 @@ public class Rental {
      * @throws NullPointerException if aMovie is <code>null</code>.
      */
     protected void setMovie(Movie aMovie) {
-        if (aMovie == null || (rentalid != null && aMovie.isRented())) {
+        if (aMovie == null || (id != 0 && aMovie.isRented())) {
             throw new MovieRentalException(EXC_MOVIE_NOT_RENTALBE);
         }
         movie = aMovie;
@@ -174,7 +194,7 @@ public class Rental {
 
     @Override
     public int hashCode() {
-        int result = getRentalId() != null ? getRentalId().hashCode() : 0;
+        int result = (int) getRentalId();
         result = result * 19 + getMovie().hashCode();
         result = result * 19 + getUser().hashCode();
         return result;

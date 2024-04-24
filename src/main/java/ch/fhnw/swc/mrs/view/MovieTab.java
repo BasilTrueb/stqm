@@ -26,7 +26,6 @@ public class MovieTab extends JPanel {
     JButton newMovie = new JButton("New");
     JButton deleteMovie = new JButton("Delete");
     JButton editMovie = new JButton("Edit");
-    JComboBox<String> priceCat = new JComboBox<>();
     JComboBox<Integer> ageRating = new JComboBox<>();
     JTextField releaseDate = new JTextField();
     JTextField title = new JTextField();
@@ -37,10 +36,9 @@ public class MovieTab extends JPanel {
 
     protected static final DateTimeFormatter SDF = DateTimeFormatter.ISO_DATE;
     private static final String[] HEADERS = new String[] { "Movie ID", "Title", "Release Date", "Is Rented?",
-            "Price Category", "Age Rating" };
-    private static final Class<?>[] TYPES = new Class[] { Integer.class, String.class, Object.class, Boolean.class,
-            Object.class, Integer.class };
-    private static final String[] PRICE_CATEGORIES = new String[] { "Children", "New Release", "Regular" };
+            "Age Rating" };
+    private static final Class<?>[] TYPES = new Class[] { Long.class, String.class, Object.class, Boolean.class,
+            Integer.class };
     private static final Integer[] AGE_RATINGS = new Integer[] { 0, 6, 12, 14, 16, 18 };
 
     /**
@@ -62,8 +60,6 @@ public class MovieTab extends JPanel {
         title.setToolTipText("Please enter or re-enter the title of the movie.");
         releaseDate.setText(today);
         releaseDate.setToolTipText("Please enter the release date of the movie.");
-        priceCat.setModel(new DefaultComboBoxModel<String>(PRICE_CATEGORIES));
-        priceCat.setToolTipText("Please select a price category.");
         ageRating.setModel(new DefaultComboBoxModel<Integer>(AGE_RATINGS));
         ageRating.setToolTipText("Please select a minimum age to be allowed to rent this movie.");
 
@@ -135,9 +131,7 @@ public class MovieTab extends JPanel {
                                 .addComponent(title, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
                                         .addComponent(releaseDate, GroupLayout.Alignment.LEADING)
-                                        .addComponent(ageRating, GroupLayout.Alignment.LEADING).addComponent(priceCat,
-                                                GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE,
-                                                GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(ageRating, GroupLayout.Alignment.LEADING)))
                         .addContainerGap())
                 .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE));
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -155,9 +149,7 @@ public class MovieTab extends JPanel {
                                 .addComponent(ageRatingLabel).addComponent(ageRating, GroupLayout.PREFERRED_SIZE,
                                         GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(priceCatLabel)
-                                .addComponent(priceCat, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-                                        GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(priceCatLabel))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(saveMovie)
                                 .addComponent(deleteMovie).addComponent(editMovie).addComponent(newMovie)

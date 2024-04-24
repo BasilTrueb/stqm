@@ -1,48 +1,34 @@
 package ch.fhnw.swc.mrs.data;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.sql2o.Connection;
-import org.sql2o.Query;
-import org.sql2o.Sql2o;
-
+import ch.fhnw.swc.mrs.api.MovieRentalException;
 import ch.fhnw.swc.mrs.model.Movie;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 /**
  * Provides CRUD operations for Movie objects to and from the database.
  */
 public class MovieDAO {
-    /** SQL statement to delete movie. */
-    private static final String DELETE_SQL = "DELETE FROM movies WHERE movieid = :movieid ";
-    /** SQL statement to create movie. */
-    private static final String INSERT_SQL = "INSERT INTO movies (movieid, title, rented, "
-            + "releasedate, pricecategory, agerating) "
-            + "  VALUES (:movieid, :title, :rented, :releasedate, :pricecategory, :agerating) ";
-    /** SQL statement to update movie. */
-    private static final String UPDATE_SQL = "UPDATE movies " + "SET title = :title, rented = :rented, "
-            + "releasedate = :releasedate, pricecategory = :pricecategory , agerating = :agerating"
-            + "  WHERE movieid = :movieid";
-    /** select clause of queries. */
-    private static final String SELECT_CLAUSE = "SELECT movieid, title, rented, releasedate, pricecategory, agerating "
-            + "  FROM movies ";
-    /** SQL statement to get movie by movieid. */
-    public static final String GET_BY_ID_SQL = SELECT_CLAUSE + " WHERE movieid = :movieid";
-    /** SQL statement to get movie by name. */
-    private static final String GET_BY_TITLE_SQL = SELECT_CLAUSE + " WHERE title = :title";
-    /** SQL statement to get all movies. */
-    private static final String GET_ALL_SQL = SELECT_CLAUSE;
-    /** SQL statement to get all movies of a given rented status. */
-    private static final String GET_ALL_RENTED_SQL = SELECT_CLAUSE + " WHERE rented = :rented";
+    /** Query to get all movies. */
+    private static final String GET_ALL_MOVIES = "SELECT m FROM Movie m";
+    /** Query to get movies by title. */
+    private static final String GET_MOVIE_BY_TITLE = "SELECT m FROM Movie m WHERE m.title like :title";
+    /** Query to get rented movies. */
+    private static final String GET_RENTED_MOVIES = "SELECT m FROM Movie m WHERE m.rented = :rented";
 
-    private Sql2o sql2o;
+    private EntityManager em;
 
     /**
+     * Create a data access object (DAO) for movie related database queries.
      * 
-     * @param sql2o the sql to dao param
+     * @param em the EntityManager to use with this DAO.
      */
-    public MovieDAO(Sql2o sql2o) {
-        this.sql2o = sql2o;
+    public MovieDAO(EntityManager em) {
+        this.em = em;
     }
 
     /**
@@ -51,13 +37,8 @@ public class MovieDAO {
      * @param movieid the unique identification of the movie object to retrieve.
      * @return the movie with the given identification or <code>null</code> if none found.
      */
-    public Movie getById(UUID movieid) {
-        try (Connection conn = sql2o.open()) {
-            Query q = conn.createQuery(GET_BY_ID_SQL);
-            q = q.addParameter("movieid", movieid);
-            Movie m = q.executeAndFetchFirst(Movie.class);
-            return m;
-        }
+    public Movie getById(long movieid) {
+        return em.find(Movie.class, movieid);
     }
 
     /**
@@ -66,9 +47,9 @@ public class MovieDAO {
      * @return a list of all movies.
      */
     public List<Movie> getAll() {
-        try (Connection conn = sql2o.open()) {
-            return conn.createQuery(GET_ALL_SQL).executeAndFetch(Movie.class);
-        }
+        TypedQuery<Movie> query = em.createQuery(GET_ALL_MOVIES, Movie.class);
+        List<Movie> result = query.getResultList();
+        return result;
     }
 
     /**
@@ -78,10 +59,9 @@ public class MovieDAO {
      * @return movies that fulfill the rented status.
      */
     public List<Movie> getAll(boolean rented) {
-        try (Connection conn = sql2o.open()) {
-            return conn.createQuery(GET_ALL_RENTED_SQL).addParameter("rented", rented).executeAndFetch(Movie.class);
-        }
-
+        TypedQuery<Movie> query = em.createQuery(GET_RENTED_MOVIES, Movie.class).setParameter("rented", rented);
+        List<Movie> result = query.getResultList();
+        return result;
     }
 
     /**
@@ -91,42 +71,46 @@ public class MovieDAO {
      * @return movies that match the title.
      */
     public List<Movie> getByTitle(String title) {
-        try (Connection conn = sql2o.open()) {
-            return conn.createQuery(GET_BY_TITLE_SQL).addParameter("title", title).executeAndFetch(Movie.class);
-        }
+        TypedQuery<Movie> query = em.createQuery(GET_MOVIE_BY_TITLE, Movie.class).setParameter("title", title);
+        List<Movie> result = query.getResultList();
+        return result;
     }
 
     /**
      * Persist a Movie object. Use this method either when storing a new Movie object or for
      * updating an existing one.
      * 
-     * @param m the object to persist.
+     * @param movie the object to persist.
      */
-    public void saveOrUpdate(Movie m) {
-        UUID movieid = m.getMovieid();
-        String sql = UPDATE_SQL;
-
-        if (movieid == null) {
-            m.setMovieid(UUID.randomUUID());
-            sql = INSERT_SQL;
-        }
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(sql).addParameter("movieid", m.getMovieid()).addParameter("title", m.getTitle())
-                    .addParameter("rented", m.isRented()).addParameter("releasedate", m.getReleaseDate())
-                    .addParameter("pricecategory", m.getPriceCategory().toString())
-                    .addParameter("agerating", m.getAgeRating()).executeUpdate();
-        }
+    public void saveOrUpdate(Movie movie) {
+        executeInsideTransaction(em -> {
+            if (movie.getMovieid() != 0) {
+                em.merge(movie);
+            } else {
+                em.persist(movie);
+            }
+        });
     }
 
     /**
      * Remove a movie from the database. After this operation the movie does not exist any more in
      * the database. Make sure to dispose the object too!
      * 
-     * @param movieid the Movie to remove.
+     * @param movie the Movie to remove.
      */
-    public void delete(UUID movieid) {
-        try (Connection conn = sql2o.open()) {
-            conn.createQuery(DELETE_SQL).addParameter("movieid", movieid).executeUpdate();
+    public void delete(Movie movie) {
+        executeInsideTransaction(em -> em.remove(em.merge(movie)));
+    }
+
+    private void executeInsideTransaction(Consumer<EntityManager> action) {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            action.accept(em);
+            tx.commit();
+        } catch (Exception e) {
+            tx.rollback();
+            throw new MovieRentalException("DB operation failed", e);
         }
     }
 
