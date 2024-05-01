@@ -138,6 +138,7 @@
                 <version>${maven-checkstyle.version}</version>
                 <configuration>
                     <configLocation>${project.config.dir}/swc_checks.xml</configLocation>
+                    <propertyExpansion>samedir=${basedir}/src/main/config</propertyExpansion>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <violationSeverity>warning</violationSeverity>
                 </configuration>
