@@ -110,7 +110,6 @@ public class MovieTab extends JPanel {
     private void setLayout() {
         JLabel titleLabel = new JLabel("Movie Title:");
         JLabel releaseDateLabel = new JLabel("Release Date:");
-        JLabel priceCatLabel = new JLabel("Price category:");
         JLabel ageRatingLabel = new JLabel("Age rating:");
 
         GroupLayout layout = new GroupLayout(this);
@@ -124,7 +123,7 @@ public class MovieTab extends JPanel {
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(deleteMovie)
                                 .addGap(18, 18, 18).addComponent(saveMovie).addContainerGap())
                 .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addContainerGap()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(priceCatLabel)
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(releaseDateLabel).addComponent(titleLabel).addComponent(ageRatingLabel))
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -149,7 +148,7 @@ public class MovieTab extends JPanel {
                                 .addComponent(ageRatingLabel).addComponent(ageRating, GroupLayout.PREFERRED_SIZE,
                                         GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(priceCatLabel))
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(saveMovie)
                                 .addComponent(deleteMovie).addComponent(editMovie).addComponent(newMovie)

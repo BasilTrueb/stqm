@@ -11,40 +11,36 @@
         <!-- The following setting avoids the error during mvn site: [ERROR] Error 
             fetching link: C:\_data\1_edu_ba\stqm\projects\mrs-hs20    arget\javadoc-bundle-options. -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>18</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.config.dir>${project.basedir}/src/main/config</project.config.dir>
 
         <!-- dependencies -->
-        <junit.jupiter.version>5.9.1</junit.jupiter.version>
-        <mockito.core.version>4.8.0</mockito.core.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <mockito.core.version>5.11.0</mockito.core.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <log4j.core.version>2.19.0</log4j.core.version>
-        <slf4j.simple.version>2.0.3</slf4j.simple.version>
-        <commons-csv.version>1.9.0</commons-csv.version>
+        <log4j.core.version>2.23.1</log4j.core.version>
+        <slf4j.simple.version>2.0.13</slf4j.simple.version>
+        <commons-csv.version>1.10.0</commons-csv.version>
 
-        <!-- 2.7.2 not supported -->
-        <dbunit.version>2.7.2</dbunit.version>
         <dependency.locations.enabled>false</dependency.locations.enabled>
-        <io-rest-assured.version>4.4.0</io-rest-assured.version>
-        <jackson.version>2.13.4</jackson.version>
+        <io-rest-assured.version>5.4.0</io-rest-assured.version>
+        <jackson.version>2.17.0</jackson.version>
         <sparkjava.version>2.9.4</sparkjava.version>
-        <sql2o.version>1.6.0</sql2o.version>
 <!--    Note: the new version 1.0.0 and higher uses the testcontainers library, 
               which does not run with this version -->
-        <otj-pg-embedded.version>0.13.4</otj-pg-embedded.version>
-        <postgresql.version>42.5.0</postgresql.version>
-        <commons-cli.version>1.4</commons-cli.version>
+        <postgresql.version>42.7.3</postgresql.version>
+        <commons-cli.version>1.7.0</commons-cli.version>
 
         <!-- plugins -->
-        <maven-site.version>4.0.0-M3</maven-site.version>
-        <maven-compiler.version>3.10.1</maven-compiler.version>
-        <maven-surefire.version>3.0.0-M7</maven-surefire.version>
-        <maven-failsafe.version>3.0.0-M7</maven-failsafe.version>
-        <maven-shade.version>3.4.0</maven-shade.version>
-        <maven-checkstyle.version>3.1.2</maven-checkstyle.version>
+        <maven-site.version>4.0.0-M13</maven-site.version>
+        <maven-compiler.version>3.12.1</maven-compiler.version>
+        <maven-surefire.version>3.2.5</maven-surefire.version>
+        <maven-failsafe.version>3.2.5</maven-failsafe.version>
+        <maven-shade.version>3.5.2</maven-shade.version>
+        <maven-checkstyle.version>3.3.1</maven-checkstyle.version>
         <jacoco-maven.version>0.8.8</jacoco-maven.version>
-        <maven-project-info-reports.version>3.2.2</maven-project-info-reports.version>
-        <maven-javadoc.version>3.4.1</maven-javadoc.version>
+        <maven-project-info-reports.version>3.5.0</maven-project-info-reports.version>
+        <maven-javadoc.version>3.6.3</maven-javadoc.version>
     </properties>
 
     <build>
@@ -118,6 +114,18 @@
                                     <mainClass>ch.fhnw.swc.mrs.Application</mainClass>
                                 </transformer>
                             </transformers>
+   							<filters>
+								<!-- prevent conflicting MANIFEST.MD files-->
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.MF</exclude>
+										<exclude>META-INF/LICENSE*</exclude>
+										<exclude>META-INF/NOTICE*</exclude>
+										<exclude>META-INF/DEPENDENCIES*</exclude>
+									</excludes>
+								</filter>
+							</filters>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>
@@ -129,31 +137,10 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle.version}</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
                     <configLocation>${project.config.dir}/swc_checks.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <violationSeverity>warning</violationSeverity>
-                    <propertyExpansion>samedir=${project.config.dir}</propertyExpansion>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <linkXRef>false</linkXRef>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>checkstyle validation</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>8.42</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>
@@ -180,19 +167,12 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
             
     </build>
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>${maven-site.version}</version>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -212,7 +192,7 @@
 					<excludePackageNames>ch.fhnw.swc.mrs.view</excludePackageNames>
 					<doctitle>Movie Rental System - Software Testing and Quality
 						Management</doctitle>
-					<bottom>Copyright &amp;copy; 2021 Studiengang Informatik, FHNW</bottom>
+					<bottom>Copyright &amp;copy; 2024 Studiengang Informatik, FHNW</bottom>
 				</configuration>
 				<reportSets>
 					<reportSet>
@@ -230,8 +210,9 @@
                 <configuration>
                     <configLocation>src/main/config/swc_checks.xml</configLocation>
                     <propertyExpansion>samedir=${basedir}/src/main/config</propertyExpansion>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <linkXRef>false</linkXRef>
-                    <encoding>UTF-8</encoding>
+					<violationSeverity>warning</violationSeverity>
                 </configuration>
                 <reportSets>
                     <reportSet>
@@ -329,11 +310,11 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>6.1.4.Final</version>
-        </dependency>
+		<dependency>
+		    <groupId>org.hibernate.orm</groupId>
+		    <artifactId>hibernate-core</artifactId>
+		    <version>6.5.0.Final</version>
+		</dependency>
 
         <dependency>
             <groupId>org.hsqldb</groupId>
@@ -345,7 +326,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.22.0</version>
+            <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
 
