@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 
 @Tag("integration")
-class IntegrationTestUserController {
+class ITUserController {
 
     private String baseUrl = "http://localhost:";
 
@@ -37,7 +37,7 @@ class IntegrationTestUserController {
     @Test
     void testGetUserById() {
         given().contentType("application/json").when()
-                .get(baseUrl + "/users/{id}", "20000000-0000-0000-0000-000000000004").then().statusCode(200)
+                .get(baseUrl + "/users/{id}", "4").then().statusCode(200)
                 .body("name", equalTo("Müller"));
     }
 
@@ -47,7 +47,7 @@ class IntegrationTestUserController {
         String json = get(baseUrl + "/users").asString();
         int elementsBefore = new JsonPath(json).getInt("size()");
 
-        given().when().delete(baseUrl + "/users/20000000-0000-0000-0000-000000000005").then()
+        given().when().delete(baseUrl + "/users/5").then()
                 .statusCode(StatusCodes.NO_CONTENT);
 
         json = get(baseUrl + "/users").asString();
@@ -64,8 +64,8 @@ class IntegrationTestUserController {
                 + "        \"firstname\" : \"Christoph\"\r\n" 
                 + "    }";
 
-        String json = get(baseUrl + "/users").asString();
-        int elementsBefore = new JsonPath(json).getInt("size()");
+        String json1 = get(baseUrl + "/users").asString();
+        int elementsBefore = new JsonPath(json1).getInt("size()");
 
         given().
                 body(bodyContent)
@@ -76,21 +76,21 @@ class IntegrationTestUserController {
                 .body("name", equalTo("Denzler"))
                 .body("$", hasKey("id")); // verify that the id of the new user is returned
 
-        json = get(baseUrl + "/users").asString();
-        int elementsAfter = new JsonPath(json).getInt("size()");
+        String json2 = get(baseUrl + "/users").asString();
+        int elementsAfter = new JsonPath(json2).getInt("size()");
         assertEquals(elementsBefore, elementsAfter - 1);
     }
 
     @DisplayName("Update user")
     @Test
     void testUpdateUser() {
-        String body = "{\r\n" + "        \"id\": \"20000000-0000-0000-0000-000000000006\",\r\n"
+        String body = "{\r\n" + "        \"id\": \"6\",\r\n"
                 + "        \"name\": \"Meier\",\r\n" + "        \"firstname\": \"Katrin\",\r\n"
                 + "        \"birthDate\": \"2017-06-27\"\r\n" + "    }";
         String json = get(baseUrl + "/users").asString();
         int elementsBefore = new JsonPath(json).getInt("size()");
 
-        given().body(body).when().put(baseUrl + "/users/20000000-0000-0000-0000-000000000006").then()
+        given().body(body).when().put(baseUrl + "/users/6").then()
                 .statusCode(StatusCodes.OK).body("name", equalTo("Meier"));
 
         json = get(baseUrl + "/users").asString();
