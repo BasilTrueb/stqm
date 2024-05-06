@@ -1,6 +1,5 @@
 package ch.fhnw.swc.mrs.data;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,8 +22,6 @@ public class DbMRSServices implements MRSServices {
 
     /**
      * A MRSServices facade for PostresqlDB is initialized according to the passed config.
-     * 
-     * @throws IOException if config file not found
      */
     public DbMRSServices() {        
         emf = Persistence.createEntityManagerFactory("MRS.Production");
