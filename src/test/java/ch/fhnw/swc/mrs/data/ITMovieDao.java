@@ -41,9 +41,9 @@ public class ITMovieDao extends AbstractITDao {
     @BeforeEach
     void setUp() throws Exception {
         dao = new MovieDAO(getEMF().createEntityManager());
-        juno = new Movie("Titanic", LocalDate.of(2007,12,23),0);
-        matrix = new Movie("Matrix", LocalDate.of(1997,3,11), 12);
-        rambo = new Movie("Rambo", LocalDate.of(2008,1,25), 14);
+        juno = new Movie("Titanic", LocalDate.of(2007, 12, 23), 0);
+        matrix = new Movie("Matrix", LocalDate.of(1997, 3,  11), 12);
+        rambo = new Movie("Rambo", LocalDate.of(2008, 1, 25), 14);
 
         dao.saveOrUpdate(juno);
         dao.saveOrUpdate(matrix);
@@ -73,9 +73,9 @@ public class ITMovieDao extends AbstractITDao {
                 .value().isEqualTo("Titanic");
 
         assertThat(table).column("releasedate")
-                .value().isEqualTo(LocalDate.of(1997,3,11))
-                .value().isEqualTo(LocalDate.of(2008,1,25))
-                .value().isEqualTo(LocalDate.of(2007,12,23));
+                .value().isEqualTo(LocalDate.of(1997, 3, 11))
+                .value().isEqualTo(LocalDate.of(2008, 1, 25))
+                .value().isEqualTo(LocalDate.of(2007, 12, 23));
 
         assertThat(table).column("agerating")
                 .value().isEqualTo(12)
@@ -87,7 +87,7 @@ public class ITMovieDao extends AbstractITDao {
 
     @Test
     void testDeleteNoneExisting() throws Exception {
-        Movie movie = new Movie("Hello", LocalDate.now(),12);
+        Movie movie = new Movie("Hello", LocalDate.now(), 12);
 
         Changes changes = new Changes(src);
         changes.setStartPointNow();
@@ -159,8 +159,8 @@ public class ITMovieDao extends AbstractITDao {
                 .changeOfModificationOnTable("MOVIES")
                 .rowAtStartPoint().value("title").isEqualTo("Matrix")
                 .rowAtEndPoint().value("title").isEqualTo("Matrix 3")
-                .rowAtStartPoint().value("releasedate").isEqualTo(LocalDate.of(1997,3,11))  // Check initial release date
-                .rowAtEndPoint().value("releasedate").isEqualTo(LocalDate.of(2020,3,3))
+                .rowAtStartPoint().value("releasedate").isEqualTo(LocalDate.of(1997, 3, 11))
+                .rowAtEndPoint().value("releasedate").isEqualTo(LocalDate.of(2020, 3, 3))
                 .rowAtStartPoint().value("agerating").isEqualTo(12)
                 .rowAtEndPoint().value("agerating").isEqualTo(16);
     }
