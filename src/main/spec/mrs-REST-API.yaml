@@ -10,7 +10,7 @@ info:
     url: 'http://web.fhnw.ch/plattformen/stqm/'
     email: christoph.denzler@fhnw.ch
 servers:
-  - url: 'http://localhost:4567'
+  - url: 'http://localhost:62600'
 paths:
   /movies:
     get:
@@ -162,7 +162,7 @@ paths:
         if more than one users exists with the provided name, any of these can be
         returend.
         Else (if no parameter is provided), a list of all users will be returned.
-      parameters: 
+      parameters:
         - name: name
           description: The name of the user to return.
           in: query
@@ -180,7 +180,7 @@ paths:
     post:
       summary: Creates a user.
       description: Creates a new user.
-      parameters: 
+      parameters:
         - name: name
           description: The family name of the new user.
           in: query
@@ -220,7 +220,7 @@ paths:
     get:
       summary: Returns a specific user
       description: Returns a single user with the given id.
-      parameters: 
+      parameters:
         - name: id
           description: The unique identification of the movie object to retrieve.
           in: path
@@ -285,6 +285,102 @@ paths:
           description: >-
             The request could not be processed or the provided ids in the path
             and in the body do not match
+  /rentals:
+    get:
+      summary: List all rentals
+      description: Retrieve a list of all movie rentals in the system.
+      responses:
+        '200':
+          description: An array of rental records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rental'
+
+    post:
+      summary: Create a new rental
+      description: Create a new movie rental.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rental'
+      responses:
+        '201':
+          description: Rental created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+        '400':
+          description: Invalid input provided.
+
+  /rentals/{id}:
+    get:
+      summary: Get a rental by ID
+      description: Retrieve a single rental by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detailed information about a rental.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+        '404':
+          description: Rental not found.
+
+    put:
+      summary: Update a rental
+      description: Update details of an existing rental.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rental'
+      responses:
+        '200':
+          description: Rental updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+        '404':
+          description: Rental not found.
+        '400':
+          description: Invalid input provided.
+
+    delete:
+      summary: Delete a rental
+      description: Delete a rental by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Rental deleted successfully.
+        '404':
+          description: Rental not found.
+
+
 components:
   schemas:
     Movie:
@@ -338,3 +434,24 @@ components:
         - firstname
         - name
         - birthDate
+    Rental:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the rental.
+        rentalDate:
+          type: string
+          format: date
+          description: Date when the movie was rented.
+          example: '1920-11-11'
+        userId:
+          type: integer
+          description: Identifier of the user who is renting the movie.
+        movieId:
+          type: integer
+          description: Identifier of the movie being rented.
+      required:
+        - userId
+        - movieId
+        - rentalDate
