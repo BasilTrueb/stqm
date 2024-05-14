@@ -30,7 +30,7 @@ public final class RentalController {
 
     private static MRSServices backend;
 
-    private static Route fetchAllRentals = (Request request, Response response) -> {
+    private static final Route fetchAllRentals = (Request request, Response response) -> {
         Collection<Rental> rentals = backend.getAllRentals();
         return dataToJson(rentals);
     };
@@ -45,7 +45,7 @@ public final class RentalController {
 //        return dataToJson(createdRental);
 //    };
 
-    private static Route deleteRental = (Request request, Response response) -> {
+    private static final Route deleteRental = (Request request, Response response) -> {
         long id = getParamId(request);
         if (backend.deleteRental(id)) {
             response.status(StatusCodes.NO_CONTENT);
