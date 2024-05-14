@@ -2,6 +2,7 @@ package ch.fhnw.swc.mrs;
 
 import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.controller.MovieController;
+import ch.fhnw.swc.mrs.controller.RentalController;
 import ch.fhnw.swc.mrs.controller.UserController;
 import ch.fhnw.swc.mrs.data.SimpleMRSServices;
 import ch.fhnw.swc.mrs.util.Filters;
@@ -39,6 +40,7 @@ public final class Application {
         // Set up routes
         MovieController.init(backend);
         UserController.init(backend);
+        RentalController.init(backend);
         // get("*", ViewUtil.notFound);
 
         // Set up after-filters (called after each get/post)
