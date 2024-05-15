@@ -20,15 +20,15 @@ public final class Application {
      * The Application main entry point.
      * 
      * @param args are ignored.
-     * @throws Exception whenever something goes wrong.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         // Instantiate dependencies
         MRSServices backend = new SimpleMRSServices();
         backend.createDB();
 
         // Configure Spark
         exception(Exception.class, (e, req, res) -> e.printStackTrace());
+
         // let spark find a free port
         port(0);
         staticFiles.location("/public");
