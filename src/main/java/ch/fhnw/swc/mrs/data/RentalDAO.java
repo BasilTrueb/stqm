@@ -89,13 +89,16 @@ public class RentalDAO {
      */
     public void delete(Rental rental) {
         executeInsideTransaction(em -> {
-            var user = rental.getUser();
-            var movie = rental.getMovie();
-            user.removeRental(rental);
-            movie.setRented(false);
-            em.merge(user);
-            em.merge(movie);
-            em.remove(em.merge(rental));
+            Rental rentalId = em.find(Rental.class, rental.getRentalId());
+            if (rentalId != null) {
+                var user = rental.getUser();
+                var movie = rental.getMovie();
+                user.removeRental(rental);
+                movie.setRented(false);
+                em.merge(user);
+                em.merge(movie);
+                em.remove(em.merge(rental));
+            }
         });
     }
 
