@@ -27,10 +27,8 @@ import spark.Response;
 import spark.Route;
 
 public final class RentalController {
-
     private static MRSServices backend;
-
-    private static final Route fetchAllRentals = (Request request, Response response) -> {
+    private static final Route FETCH_ALL_RENTALS = (Request request, Response response) -> {
         Collection<Rental> rentals = backend.getAllRentals();
         return dataToJson(rentals);
     };
@@ -45,7 +43,7 @@ public final class RentalController {
 //        return dataToJson(createdRental);
 //    };
 
-    private static final Route deleteRental = (Request request, Response response) -> {
+    private static final Route DELETE_RENTAL = (Request request, Response response) -> {
         long id = getParamId(request);
         if (backend.deleteRental(id)) {
             response.status(StatusCodes.NO_CONTENT);
@@ -68,9 +66,9 @@ public final class RentalController {
         JsonUtil.registerSerializer(new RentalSerializer());
         JsonUtil.registerDeserializer(Rental.class, new RentalDeserializer());
 
-        get("/rentals", RentalController.fetchAllRentals);
+        get("/rentals", RentalController.FETCH_ALL_RENTALS);
 //        post("/rentals", RentalController.createRental);
-        delete("/rentals/:id", RentalController.deleteRental);
+        delete("/rentals/:id", RentalController.DELETE_RENTAL);
     }
 
     // Prevent instantiation
