@@ -10,7 +10,7 @@ info:
     url: 'http://web.fhnw.ch/plattformen/stqm/'
     email: christoph.denzler@fhnw.ch
 servers:
-  - url: 'http://localhost:50548'
+  - url: 'http://localhost:55946'
 paths:
   /movies:
     get:

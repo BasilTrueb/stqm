@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 
 @Tag("integration")
-class ITUserController {
+class ITRentalController {
 
     private String baseUrl = "http://localhost:";
 
@@ -33,79 +33,88 @@ class ITUserController {
         baseUrl = baseUrl + Application.getPort();
     }
 
-    @DisplayName("Get a user by its id.")
+    @DisplayName("Get a rental by its id.")
     @Test
-    void testGetUserById() {
+    void testGetRentalById() {
         given().contentType("application/json").when()
-                .get(baseUrl + "/users/{id}", "4").then().statusCode(200)
-                .body("name", equalTo("Müller"));
+                .get(baseUrl + "/rentals/{id}", "1").then().statusCode(200)
+                .body("userId", equalTo(1))
+                .body("movieId", equalTo(1));
     }
 
-    @DisplayName("Delete user")
+    @DisplayName("Delete rental")
     @Test
-    void testDeleteUser() {
-        String json = get(baseUrl + "/users").asString();
+    void testDeleteRental() {
+        String json = get(baseUrl + "/rentals").asString();
         int elementsBefore = new JsonPath(json).getInt("size()");
 
-        given().when().delete(baseUrl + "/users/5").then()
+        given().when().delete(baseUrl + "/rentals/1").then()
                 .statusCode(StatusCodes.NO_CONTENT);
 
-        json = get(baseUrl + "/users").asString();
+        json = get(baseUrl + "/rentals").asString();
         int elementsAfter = new JsonPath(json).getInt("size()");
         assertEquals(elementsBefore, elementsAfter + 1);
     }
 
-    @DisplayName("Create user")
+    @DisplayName("Create rental")
     @Test
-    void testCreateUser() {
+    void testCreateRental() {
         String bodyContent = """
                 {\r
-                        "name": "Denzler",\r
-                        "birthDate" : "1968-07-20",\r
-                        "firstname" : "Christoph"\r
+                        "userId": 1,\r
+                        "movieId": 1,\r
+                        "rentalDate" : "2023-01-01"\r
                     }""";
 
-        String json1 = get(baseUrl + "/users").asString();
+        String json1 = get(baseUrl + "/rentals").asString();
         int elementsBefore = new JsonPath(json1).getInt("size()");
 
         given().
+                contentType("application/json").
                 body(bodyContent)
                 .when()
-                .post(baseUrl + "/users")
+                .post(baseUrl + "/rentals")
                 .then()
                 .statusCode(StatusCodes.CREATED)
-                .body("name", equalTo("Denzler"))
-                .body("$", hasKey("id")); // verify that the id of the new user is returned
+                .body("userId", equalTo(1))
+                .body("movieId", equalTo(1))
+                .body("$", hasKey("id")); // verify that the id of the new rental is returned
 
-        String json2 = get(baseUrl + "/users").asString();
+        String json2 = get(baseUrl + "/rentals").asString();
         int elementsAfter = new JsonPath(json2).getInt("size()");
         assertEquals(elementsBefore, elementsAfter - 1);
     }
 
-    @DisplayName("Update user")
+    @DisplayName("Update rental")
     @Test
-    void testUpdateUser() {
+    void testUpdateRental() {
         String body = """
                 {\r
-                        "id": "6",\r
-                        "name": "Meier",\r
-                        "firstname": "Katrin",\r
-                        "birthDate": "2017-06-27"\r
+                        "id": 1,\r
+                        "userId": 1,\r
+                        "movieId": 2,\r
+                        "rentalDate": "2023-01-01"\r
                     }""";
-        String json = get(baseUrl + "/users").asString();
+        String json = get(baseUrl + "/rentals").asString();
         int elementsBefore = new JsonPath(json).getInt("size()");
 
-        given().body(body).when().put(baseUrl + "/users/6").then()
-                .statusCode(StatusCodes.OK).body("name", equalTo("Meier"));
+        given().
+                contentType("application/json").
+                body(body).
+                when().
+                put(baseUrl + "/rentals/1").
+                then().
+                statusCode(StatusCodes.OK).
+                body("movieId", equalTo(2));
 
-        json = get(baseUrl + "/users").asString();
+        json = get(baseUrl + "/rentals").asString();
         int elementsAfter = new JsonPath(json).getInt("size()");
         assertEquals(elementsBefore, elementsAfter);
     }
+
     @AfterAll
     static void stopSpark() throws Exception {
         Application.stop();
         Thread.sleep(1000);
     }
-
 }
