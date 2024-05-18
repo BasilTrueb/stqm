@@ -3,12 +3,13 @@ package ch.fhnw.swc.mrs.controller;
 import static ch.fhnw.swc.mrs.util.JsonUtil.dataToJson;
 import static ch.fhnw.swc.mrs.util.JsonUtil.jsonToData;
 import static ch.fhnw.swc.mrs.util.RequestUtil.getParamId;
-import static spark.Spark.*;
+import static spark.Spark.halt;
+import static spark.Spark.post;
+import static spark.Spark.delete;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 
 import ch.fhnw.swc.mrs.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -31,7 +32,8 @@ public final class RentalController {
 
     private static final Route CREATE_RENTAL = (Request request, Response response) -> {
         Rental rental = (Rental) jsonToData(request.body(), Rental.class);
-        Rental createdRental = backend.createRental(rental.getUser().getUserid(), rental.getMovie().getMovieid(), rental.getRentalDate());
+        Rental createdRental = backend.createRental(rental.getUser().getUserid(), rental.getMovie().getMovieid(),
+                rental.getRentalDate());
         if (createdRental == null) {
             halt(StatusCodes.BAD_REQUEST);
         }
