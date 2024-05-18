@@ -1,9 +1,9 @@
 package ch.fhnw.swc.mrs.controller;
 
 import static ch.fhnw.swc.mrs.util.JsonUtil.dataToJson;
+import static ch.fhnw.swc.mrs.util.JsonUtil.jsonToData;
 import static ch.fhnw.swc.mrs.util.RequestUtil.getParamId;
-import static spark.Spark.get;
-import static spark.Spark.delete;
+import static spark.Spark.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,20 +28,16 @@ import spark.Route;
 
 public final class RentalController {
     private static MRSServices backend;
-    private static final Route FETCH_ALL_RENTALS = (Request request, Response response) -> {
-        Collection<Rental> rentals = backend.getAllRentals();
-        return dataToJson(rentals);
-    };
 
-//    private static Route createRental = (Request request, Response response) -> {
-//        Rental rental = (Rental) jsonToData(request.body(), Rental.class);
-//        Rental createdRental = backend.createRental(rental.getUser(), rental.getMovie(), rental.getRentalDate());
-//        if (createdRental == null) {
-//            halt(StatusCodes.BAD_REQUEST);
-//        }
-//        response.status(StatusCodes.CREATED);
-//        return dataToJson(createdRental);
-//    };
+    private static final Route CREATE_RENTAL = (Request request, Response response) -> {
+        Rental rental = (Rental) jsonToData(request.body(), Rental.class);
+        Rental createdRental = backend.createRental(rental.getUser().getUserid(), rental.getMovie().getMovieid(), rental.getRentalDate());
+        if (createdRental == null) {
+            halt(StatusCodes.BAD_REQUEST);
+        }
+        response.status(StatusCodes.CREATED);
+        return dataToJson(createdRental);
+    };
 
     private static final Route DELETE_RENTAL = (Request request, Response response) -> {
         long id = getParamId(request);
@@ -66,8 +62,7 @@ public final class RentalController {
         JsonUtil.registerSerializer(new RentalSerializer());
         JsonUtil.registerDeserializer(Rental.class, new RentalDeserializer());
 
-        get("/rentals", RentalController.FETCH_ALL_RENTALS);
-//        post("/rentals", RentalController.createRental);
+        post("/rentals", RentalController.CREATE_RENTAL);
         delete("/rentals/:id", RentalController.DELETE_RENTAL);
     }
 

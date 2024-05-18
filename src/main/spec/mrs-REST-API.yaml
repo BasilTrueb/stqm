@@ -10,7 +10,7 @@ info:
     url: 'http://web.fhnw.ch/plattformen/stqm/'
     email: christoph.denzler@fhnw.ch
 servers:
-  - url: 'http://localhost:55946'
+  - url: 'http://localhost:52248'
 paths:
   /movies:
     get:
@@ -298,7 +298,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Rental'
-
     post:
       summary: Create a new rental
       description: Create a new movie rental.
@@ -317,54 +316,6 @@ paths:
                 $ref: '#/components/schemas/Rental'
         '400':
           description: Invalid input provided.
-
-  /rentals/{id}:
-    get:
-      summary: Get a rental by ID
-      description: Retrieve a single rental by its ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Detailed information about a rental.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Rental'
-        '404':
-          description: Rental not found.
-
-    put:
-      summary: Update a rental
-      description: Update details of an existing rental.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Rental'
-      responses:
-        '200':
-          description: Rental updated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Rental'
-        '404':
-          description: Rental not found.
-        '400':
-          description: Invalid input provided.
-
     delete:
       summary: Delete a rental
       description: Delete a rental by its ID.
@@ -379,7 +330,6 @@ paths:
           description: Rental deleted successfully.
         '404':
           description: Rental not found.
-
 
 components:
   schemas:
