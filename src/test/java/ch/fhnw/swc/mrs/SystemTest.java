@@ -17,7 +17,7 @@ public class SystemTest {
     @BeforeEach
     public void setup() {
         backend = new DbMRSServices("MRS.Test");
-
+        backend.clearDB();
     }
 
     @AfterEach
