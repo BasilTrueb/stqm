@@ -23,6 +23,14 @@ public class DbMRSServices implements MRSServices {
     /**
      * A MRSServices facade for PostresqlDB is initialized according to the passed config.
      */
+    public DbMRSServices(String persistenceUnitName) {
+        emf = Persistence.createEntityManagerFactory(persistenceUnitName);
+        em = emf.createEntityManager();
+    }
+
+    /**
+     * A MRSServices facade for PostresqlDB is initialized according to the passed config.
+     */
     public DbMRSServices() {        
         emf = Persistence.createEntityManagerFactory("MRS.Production");
         em = emf.createEntityManager();
@@ -178,5 +186,9 @@ public class DbMRSServices implements MRSServices {
 
     @Override
     public void removeDB() { }
+
+    public void clearDB() {
+        em.clear();
+    }
 
 }
