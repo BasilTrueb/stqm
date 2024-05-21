@@ -2,7 +2,6 @@ package ch.fhnw.swc.mrs.data;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.model.Movie;
 import ch.fhnw.swc.mrs.model.Rental;
