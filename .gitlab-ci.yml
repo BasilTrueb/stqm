@@ -45,10 +45,10 @@ integration-test-job:
   stage: test
   needs: [unit-test-job]
   script:
-    - mvn verify
+    - mvn failsafe:integration-test failsafe:verify
   artifacts:
     reports:
-       junit:
+      junit:
         - target/failsafe-reports/*.xml
 
 analyze-job:
