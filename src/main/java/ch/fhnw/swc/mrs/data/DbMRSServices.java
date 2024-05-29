@@ -21,6 +21,7 @@ public class DbMRSServices implements MRSServices {
 
     /**
      * A MRSServices facade for PostresqlDB is initialized according to the passed config.
+     * @param persistenceUnitName the name of the persistence unit to use
      */
     public DbMRSServices(String persistenceUnitName) {
         emf = Persistence.createEntityManagerFactory(persistenceUnitName);
