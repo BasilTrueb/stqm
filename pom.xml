@@ -157,6 +157,7 @@
                 <configuration>
 					<includes>
                         <include>**/IT*.java</include>
+                        <include>**/System*.java</include>
                     </includes>
 				</configuration>
                 <executions>
