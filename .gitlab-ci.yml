@@ -46,9 +46,9 @@ integration-test-job:
   needs: [unit-test-job]
   script:
     - mvn verify
-    artifacts:
+  artifacts:
     reports:
-      junit:
+       junit:
         - target/failsafe-reports/*.xml
 
 analyze-job:
