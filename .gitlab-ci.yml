@@ -60,7 +60,17 @@ integration-test-job:
   image: $MAVEN_IMAGE
   stage: integration-test
   script:
-    - mvn verify
+    - mvn clean verify
+  artifacts:
+    reports:
+      junit:
+        - target/failsafe-reports/*.xml
+
+system-test-job:
+  image: $MAVEN_IMAGE
+  stage: integration-test
+  script:
+    - mvn "-Dit.test=System*" verify
   artifacts:
     reports:
       junit:
