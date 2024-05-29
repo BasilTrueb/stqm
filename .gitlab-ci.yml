@@ -32,15 +32,6 @@ build-job:
     paths:
       - target/
 
-analyze-job:
-  stage: analyze
-  script:
-    - mvn checkstyle:check
-  artifacts:
-    when: always
-    reports:
-      codequality: target/checkstyle-result.xml
-
 unit-test-job:
   stage: test
   script:
@@ -49,6 +40,15 @@ unit-test-job:
     reports:
       junit:
         - target/surefire-reports/*.xml
+
+analyze-job:
+  stage: analyze
+  script:
+    - mvn checkstyle:check
+  artifacts:
+    when: always
+    reports:
+      codequality: target/checkstyle-result.xml
 
 package-job:
   stage: package
