@@ -19,6 +19,7 @@
 stages:
   - build
   - test
+  - integration-test
   - analyze
   - package
 
@@ -47,6 +48,17 @@ analyze-job:
 unit-test-job:
   image: $MAVEN_IMAGE
   stage: test
+  script:
+    - mvn test
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/*.xml
+
+
+integration-test-job:
+  image: $MAVEN_IMAGE
+  stage: integration-test
   script:
     - mvn test
   artifacts:
