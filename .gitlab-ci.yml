@@ -35,20 +35,11 @@ build-job:
 unit-test-job:
   stage: test
   script:
-    - mvn test
+    - mvn verify
   artifacts:
     reports:
       junit:
         - target/surefire-reports/*.xml
-
-integration-test-job:
-  stage: test
-  needs: [unit-test-job]
-  script:
-    - mvn failsafe:integration-test failsafe:verify
-  artifacts:
-    reports:
-      junit:
         - target/failsafe-reports/*.xml
 
 analyze-job:
