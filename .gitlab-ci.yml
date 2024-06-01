@@ -54,6 +54,16 @@ unit-test-job:
       junit:
         - target/surefire-reports/*.xml
 
+fitnesse_test_job:
+  image: $MAVEN_IMAGE
+  stage: test
+  script:
+    - mvn test
+  artifacts:
+    reports:
+      paths:
+      - target/fitnesse-results/*.xml
+
 package-job:
   image: $MAVEN_IMAGE
   stage: package
