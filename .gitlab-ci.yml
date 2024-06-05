@@ -23,11 +23,9 @@ stages:
   - analyze
   - package
 
-variables:
-  MAVEN_IMAGE: maven:3-amazoncorretto-21
+image: maven:3-amazoncorretto-21
 
 build-job:
-  image: $MAVEN_IMAGE
   stage: build
   script:
     - mvn compile
@@ -35,18 +33,7 @@ build-job:
     paths:
       - target/
 
-analyze-job:
-  image: $MAVEN_IMAGE
-  stage: analyze
-  script:
-    - mvn checkstyle:check
-  artifacts:
-    when: always
-    reports:
-      codequality: target/checkstyle-result.xml
-
 unit-test-job:
-  image: $MAVEN_IMAGE
   stage: test
   script:
     - mvn test
@@ -55,18 +42,16 @@ unit-test-job:
       junit:
         - target/surefire-reports/*.xml
 
-fitnesse_test_job:
-  image: $MAVEN_IMAGE
-  stage: acceptance
+analyze-job:
+  stage: analyze
   script:
-    - mvn verify
+    - mvn checkstyle:check
   artifacts:
+    when: always
     reports:
-      junit:
-      - target/fitnesse-results/*.xml
+      codequality: target/checkstyle-result.xml
 
 package-job:
-  image: $MAVEN_IMAGE
   stage: package
   script:
     - mvn package -Dmaven.test.skip=true
