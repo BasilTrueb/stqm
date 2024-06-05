@@ -1,0 +1,33 @@
+!***< hidden
+
+!define TEST_SYSTEM {fit}
+*!
+
+!1 Welcome to MRS Fit Test!
+
+'''Note:'''
+''To run these test, first compile your "MRS" project and adjust the classpath below to your own installation.''
+Click the [[Edit][.MRS?edit]] button to edit this page.
+
+!*> '''Classpath'''
+${maven.classpath}
+*!
+
+!| ActionFixture |
+| start | ch.fhnw.swc.mrs.fixture.SaveNewUserFixture |
+| check | countUsers | 14 |
+| enter | surname | Meier |
+| enter | first name | Hans |
+| enter | birthdate | 10.12.2001 |
+| press | save |
+| check | countUsers | 15 |
+
+!| ActionFixture |
+| start | ch.fhnw.swc.mrs.fixture.SaveNewUserFixture |
+| check | countUsers | 14 |
+| enter | surname | Jäckle |
+| enter | first name | Livio |
+| enter | birthdate | 01.11.1997 |
+| press | save |
+| check | countUsers | 15 |
+| check | userExists | true |

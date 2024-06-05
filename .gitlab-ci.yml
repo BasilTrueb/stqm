@@ -19,6 +19,7 @@
 stages:
   - build
   - test
+  - acceptance
   - analyze
   - package
 
@@ -41,6 +42,15 @@ unit-test-job:
       junit:
         - target/surefire-reports/*.xml
         - target/failsafe-reports/*.xml
+
+fitnesse_test_job:
+  stage: acceptance
+  script:
+    - mvn verify
+  artifacts:
+    reports:
+      junit:
+      - target/fitnesse-results/*.xml
 
 analyze-job:
   stage: analyze
