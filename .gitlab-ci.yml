@@ -39,7 +39,7 @@ build-job:
       - target/
 
 unit-test-job:
-  stage: test
+  stage: unit-test
   script:
     - mvn test
   artifacts:
