@@ -18,12 +18,17 @@
 
 stages:
   - build
-  - test
-  - acceptance
+  - unit-test
+  - integration-test
+  - acceptance-test
   - analyze
   - package
 
 image: maven:3-amazoncorretto-21
+
+cache:
+  paths:
+    - .m2/repository
 
 build-job:
   stage: build
@@ -36,21 +41,29 @@ build-job:
 unit-test-job:
   stage: test
   script:
-    - mvn verify
+    - mvn test
   artifacts:
     reports:
       junit:
         - target/surefire-reports/*.xml
-        - target/failsafe-reports/*.xml
 
-fitnesse_test_job:
-  stage: acceptance
+integration-test-job:
+  stage: integration-test
   script:
     - mvn verify
   artifacts:
     reports:
       junit:
-      - target/fitnesse-results/*.xml
+        - target/failsafe-reports/TEST-*.xml
+
+acceptance-test-job:
+  stage: acceptance-test
+  script:
+    - mvn verify -f pom-fit.xml -P auto
+  artifacts:
+    reports:
+      junit:
+        - target/fitnesse/results/TEST-*.xml
 
 analyze-job:
   stage: analyze
