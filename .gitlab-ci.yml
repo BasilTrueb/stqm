@@ -42,6 +42,15 @@ unit-test-job:
       junit:
         - target/surefire-reports/*.xml
 
+fitnesse_test_job:
+  stage: acceptance
+  script:
+    - mvn verify
+  artifacts:
+    reports:
+      junit:
+      - target/fitnesse-results/*.xml
+
 analyze-job:
   stage: analyze
   script:
