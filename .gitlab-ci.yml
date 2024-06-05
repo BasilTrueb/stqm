@@ -19,6 +19,7 @@
 stages:
   - build
   - test
+  - acceptance
   - analyze
   - package
 
@@ -56,12 +57,12 @@ unit-test-job:
 
 fitnesse_test_job:
   image: $MAVEN_IMAGE
-  stage: test
+  stage: acceptance
   script:
-    - mvn test
+    - mvn verify
   artifacts:
     reports:
-      paths:
+      junit:
       - target/fitnesse-results/*.xml
 
 package-job:
