@@ -59,7 +59,7 @@ integration-test-job:
 acceptance-test-job:
   stage: acceptance-test
   script:
-    - mvn verify -f pom-fit.xml -P auto
+    - mvn mvn -f pom-fit.xml install -P wiki
   artifacts:
     reports:
       junit:

@@ -116,8 +116,8 @@ public class ITMovieDao extends AbstractITDao {
 
     @Test
     void testGetByName() throws Exception {
-        List<Movie> movies = dao.getByTitle("Matrix");
-        assertEquals("Matrix", movies.getFirst().getTitle());
+        List<Movie> movie = dao.getByTitle("Matrix");
+        assertEquals("Matrix", movie.get(0).getTitle());
     }
 
     @Test
@@ -125,8 +125,8 @@ public class ITMovieDao extends AbstractITDao {
         List<Movie> movies = dao.getByTitle("Matrix");
         assertEquals(1, movies.size());
 
-        Movie movie = dao.getById(movies.getFirst().getMovieid());
-        assertEquals(movie, movies.getFirst());
+        Movie movie = dao.getById(movies.get(0).getMovieid());
+        assertEquals(movie, movies.get(0));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class ITMovieDao extends AbstractITDao {
         List<Movie> movies = dao.getByTitle("Matrix");
         assertEquals(1, movies.size());
 
-        Movie matrix = movies.getFirst();
+        Movie matrix = movies.get(0);
 
         matrix.setTitle("Matrix 3");
         matrix.setReleaseDate(LocalDate.of(2020, 3, 3));
