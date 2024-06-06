@@ -57,10 +57,10 @@ integration-test-job:
         - target/failsafe-reports/TEST-*.xml
 
 acceptance-test:
-  stage: acceptance-test
-  script:
-    - mvn verify -f pom-fit.xml -P auto
-  artifacts:
+   stage: acceptance-test
+   script:
+     - mvn verify -f pom-fit.xml -P auto
+   artifacts:
     when: always
     reports:
       junit:
