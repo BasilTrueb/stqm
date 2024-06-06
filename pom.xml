@@ -168,6 +168,32 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.44.0</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <alias>service</alias>
+                            <name>cr.gitlab.fhnw.ch/stqm-fs24/mrs-10</name>
+                        </image>
+
+                        <image>
+                            <alias>database</alias>
+                            <name>postgres:9</name>
+                            <run>
+                                <wait>
+                                    <log>database system is ready to accept connections</log>
+                                    <time>20000</time>
+                                </wait>
+                            </run>
+                        </image>
+
+                    </images>
+                </configuration>
+            </plugin>
         </plugins>
             
     </build>
@@ -234,23 +260,7 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.44.0</version>
-                <configuration>
-                    <images>
-                        <image>
-                            <name>debezium/postgres-server-test-database</name>
-                            <run>...</run>
-                            <from>debezium/postgres:9.6</from>
-                            <runCmds>
-                                <run>ln -fs /usr/share/zoneinfo/US/Samoa /etc/localtime &amp;&amp; echo timezone=US/Samoa &gt;&gt; /usr/share/postgresql/postgresql.conf.sample</run>
-                            </runCmds>
-                        </image>
-                    </images>
-                </configuration>
-            </plugin>
+
 
         </plugins>
 
