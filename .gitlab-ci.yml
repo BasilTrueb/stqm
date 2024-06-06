@@ -56,8 +56,8 @@ integration-test-job:
       junit:
         - target/failsafe-reports/TEST-*.xml
 
-attd-job:
-   stage: attd
+acceptance-test:
+   stage: acceptance-test
    script:
      - mvn verify -f pom-fit.xml -P auto
    artifacts:
