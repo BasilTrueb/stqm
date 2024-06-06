@@ -17,6 +17,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("integration")
 class ITRentalController {
@@ -32,6 +33,25 @@ class ITRentalController {
     void setPort() throws Exception {
         baseUrl = baseUrl + Application.getPort();
     }
+
+//    @DisplayName("Get all rentals")
+//    @Test
+//    void testGetAllRentals() {
+//        // Send GET request to fetch all rentals
+//        String json = get(baseUrl + "/rentals").asString();
+//
+//        // Check the response status code
+//        get(baseUrl + "/rentals")
+//                .then()
+//                .statusCode(StatusCodes.OK);
+//
+//        // Parse the JSON response
+//        JsonPath jsonPath = new JsonPath(json);
+//        int rentalCount = jsonPath.getInt("size()");
+//
+//        // Assert that the rentals list is not empty
+//        assertTrue(rentalCount > 0, "Rental list should not be empty");
+//    }
 
     @DisplayName("Delete rental")
     @Test

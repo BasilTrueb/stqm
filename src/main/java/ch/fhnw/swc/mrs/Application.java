@@ -47,7 +47,6 @@ public final class Application {
         Filters.afterGetPost();
 
         awaitInitialization(); // IMPORTANT: Wait for spark server to be initialized
-
     }
 
     /**

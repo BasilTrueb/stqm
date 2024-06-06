@@ -3,13 +3,12 @@ package ch.fhnw.swc.mrs.controller;
 import static ch.fhnw.swc.mrs.util.JsonUtil.dataToJson;
 import static ch.fhnw.swc.mrs.util.JsonUtil.jsonToData;
 import static ch.fhnw.swc.mrs.util.RequestUtil.getParamId;
-import static spark.Spark.halt;
-import static spark.Spark.post;
-import static spark.Spark.delete;
+import static spark.Spark.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 
 import ch.fhnw.swc.mrs.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -29,6 +28,10 @@ import spark.Route;
 
 public final class RentalController {
     private static MRSServices backend;
+    private static final Route FETCH_ALL_RENTALS = (Request request, Response response) -> {
+        Collection<Rental> rentals = backend.getAllRentals();
+        return dataToJson(rentals);
+    };
 
     private static final Route CREATE_RENTAL = (Request request, Response response) -> {
         Rental rental = (Rental) jsonToData(request.body(), Rental.class);
@@ -66,6 +69,7 @@ public final class RentalController {
 
         post("/rentals", RentalController.CREATE_RENTAL);
         delete("/rentals/:id", RentalController.DELETE_RENTAL);
+        get("/rentals", RentalController.FETCH_ALL_RENTALS);
     }
 
     // Prevent instantiation
