@@ -56,11 +56,12 @@ integration-test-job:
       junit:
         - target/failsafe-reports/TEST-*.xml
 
-acceptance-test-job:
-  stage: acceptance-test
-  script:
-    - mvn -f pom-fit.xml install -P wiki
-  artifacts:
+attd-job:
+   stage: attd
+   script:
+     - mvn verify -f pom-fit.xml -P auto
+   artifacts:
+    when: always
     reports:
       junit:
         - target/fitnesse/results/TEST-*.xml
