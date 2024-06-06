@@ -18,16 +18,19 @@
 
 stages:
   - build
-  - test
+  - unit-test
   - integration-test
+  - acceptance-test
   - analyze
   - package
 
-variables:
-  MAVEN_IMAGE: maven:3-amazoncorretto-21
+image: maven:3-amazoncorretto-21
+
+cache:
+  paths:
+    - .m2/repository
 
 build-job:
-  image: $MAVEN_IMAGE
   stage: build
   script:
     - mvn compile
@@ -35,8 +38,35 @@ build-job:
     paths:
       - target/
 
+unit-test-job:
+  stage: unit-test
+  script:
+    - mvn test
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/*.xml
+
+integration-test-job:
+  stage: integration-test
+  script:
+    - mvn verify
+  artifacts:
+    reports:
+      junit:
+        - target/failsafe-reports/TEST-*.xml
+
+acceptance-test:
+  stage: acceptance-test
+  script:
+    - mvn verify -f pom-fit.xml -P auto
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - target/fitnesse/results/TEST-*.xml
+
 analyze-job:
-  image: $MAVEN_IMAGE
   stage: analyze
   script:
     - mvn checkstyle:check
@@ -45,39 +75,7 @@ analyze-job:
     reports:
       codequality: target/checkstyle-result.xml
 
-unit-test-job:
-  image: $MAVEN_IMAGE
-  stage: test
-  script:
-    - mvn test
-  artifacts:
-    reports:
-      junit:
-        - target/surefire-reports/*.xml
-
-
-integration-test-job:
-  image: $MAVEN_IMAGE
-  stage: integration-test
-  script:
-    - mvn clean verify
-  artifacts:
-    reports:
-      junit:
-        - target/failsafe-reports/*.xml
-
-system-test-job:
-  image: $MAVEN_IMAGE
-  stage: integration-test
-  script:
-    - mvn "-Dit.test=System*" verify
-  artifacts:
-    reports:
-      junit:
-        - target/failsafe-reports/*.xml
-
 package-job:
-  image: $MAVEN_IMAGE
   stage: package
   script:
     - mvn package -Dmaven.test.skip=true
