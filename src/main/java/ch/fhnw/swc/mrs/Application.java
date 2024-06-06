@@ -2,6 +2,7 @@ package ch.fhnw.swc.mrs;
 
 import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.controller.MovieController;
+import ch.fhnw.swc.mrs.controller.RentalController;
 import ch.fhnw.swc.mrs.controller.UserController;
 import ch.fhnw.swc.mrs.data.SimpleMRSServices;
 import ch.fhnw.swc.mrs.util.Filters;
@@ -19,15 +20,15 @@ public final class Application {
      * The Application main entry point.
      * 
      * @param args are ignored.
-     * @throws Exception whenever something goes wrong.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         // Instantiate dependencies
         MRSServices backend = new SimpleMRSServices();
         backend.createDB();
 
         // Configure Spark
         exception(Exception.class, (e, req, res) -> e.printStackTrace());
+
         // let spark find a free port
         port(0);
         staticFiles.location("/public");
@@ -39,13 +40,13 @@ public final class Application {
         // Set up routes
         MovieController.init(backend);
         UserController.init(backend);
+        RentalController.init(backend);
         // get("*", ViewUtil.notFound);
 
         // Set up after-filters (called after each get/post)
         Filters.afterGetPost();
 
         awaitInitialization(); // IMPORTANT: Wait for spark server to be initialized
-
     }
 
     /**

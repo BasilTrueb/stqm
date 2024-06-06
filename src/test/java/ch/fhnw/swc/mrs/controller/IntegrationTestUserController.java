@@ -58,11 +58,12 @@ class ITUserController {
     @DisplayName("Create user")
     @Test
     void testCreateUser() {
-        String bodyContent = "{\r\n" 
-                + "        \"name\": \"Denzler\",\r\n" 
-                + "        \"birthDate\" : \"1968-07-20\",\r\n" 
-                + "        \"firstname\" : \"Christoph\"\r\n" 
-                + "    }";
+        String bodyContent = """
+                {\r
+                        "name": "Denzler",\r
+                        "birthDate" : "1968-07-20",\r
+                        "firstname" : "Christoph"\r
+                    }""";
 
         String json1 = get(baseUrl + "/users").asString();
         int elementsBefore = new JsonPath(json1).getInt("size()");
@@ -84,9 +85,13 @@ class ITUserController {
     @DisplayName("Update user")
     @Test
     void testUpdateUser() {
-        String body = "{\r\n" + "        \"id\": \"6\",\r\n"
-                + "        \"name\": \"Meier\",\r\n" + "        \"firstname\": \"Katrin\",\r\n"
-                + "        \"birthDate\": \"2017-06-27\"\r\n" + "    }";
+        String body = """
+                {\r
+                        "id": "6",\r
+                        "name": "Meier",\r
+                        "firstname": "Katrin",\r
+                        "birthDate": "2017-06-27"\r
+                    }""";
         String json = get(baseUrl + "/users").asString();
         int elementsBefore = new JsonPath(json).getInt("size()");
 
@@ -97,7 +102,6 @@ class ITUserController {
         int elementsAfter = new JsonPath(json).getInt("size()");
         assertEquals(elementsBefore, elementsAfter);
     }
-
     @AfterAll
     static void stopSpark() throws Exception {
         Application.stop();
