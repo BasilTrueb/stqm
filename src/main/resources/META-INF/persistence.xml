@@ -23,4 +23,24 @@
             <property name="hibernate.hbm2ddl.auto" value="none" />
         </properties>
     </persistence-unit>
+    <persistence-unit name="MRS.Test">
+        <description>
+            Persistence unit for the JPA version of the Movie Rental System application.
+        </description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>ch.fhnw.swc.mrs.model.Movie</class>
+        <class>ch.fhnw.swc.mrs.model.User</class>
+        <class>ch.fhnw.swc.mrs.model.Rental</class>
+
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql:stqmTest" />
+            <property name="jakarta.persistence.jdbc.user" value="postgres" />
+            <property name="jakarta.persistence.jdbc.password" value="1234" />
+
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+            <property name="hibernate.hbm2ddl.auto" value="none" />
+        </properties>
+    </persistence-unit>
 </persistence>

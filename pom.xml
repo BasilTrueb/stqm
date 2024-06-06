@@ -72,6 +72,18 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.7.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler.version}</version>
                 <configuration>
@@ -86,7 +98,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire.version}</version>
+                <version>2.22.2</version>
                 <configuration>
 
                     <!-- set fork count explicitly to avoid fork errors during test -->
@@ -168,6 +180,32 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.44.0</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <alias>service</alias>
+                            <name>cr.gitlab.fhnw.ch/stqm-fs24/mrs-10</name>
+                        </image>
+
+                        <image>
+                            <alias>database</alias>
+                            <name>postgres:9</name>
+                            <run>
+                                <wait>
+                                    <log>database system is ready to accept connections</log>
+                                    <time>20000</time>
+                                </wait>
+                            </run>
+                        </image>
+
+                    </images>
+                </configuration>
+            </plugin>
         </plugins>
             
     </build>
@@ -183,7 +221,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven-javadoc.version}</version>
+				<version>3.7.0</version>
 				<configuration> 
 					<additionalOptions>
 						<additionalOption>-html5</additionalOption>
@@ -227,12 +265,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>${maven-surefire.version}</version>
+                <version>2.22.2</version>
                 <configuration>
-                    <linkXRef>false</linkXRef>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
+
+
 
         </plugins>
 
@@ -240,6 +279,11 @@
 
 
     <dependencies>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.44.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.fitnesse</groupId>
@@ -362,5 +406,21 @@
         </dependency>
 
     </dependencies>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <url>https://web.fhnw.ch/plattformen/swc/</url>
 </project>    

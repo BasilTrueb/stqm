@@ -2,7 +2,6 @@ package ch.fhnw.swc.mrs.data;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import ch.fhnw.swc.mrs.api.MRSServices;
 import ch.fhnw.swc.mrs.model.Movie;
 import ch.fhnw.swc.mrs.model.Rental;
@@ -19,6 +18,15 @@ public class DbMRSServices implements MRSServices {
 
     private EntityManagerFactory emf;
     private EntityManager em;
+
+    /**
+     * A MRSServices facade for PostresqlDB is initialized according to the passed config.
+     * @param persistenceUnitName the name of the persistence unit to use
+     */
+    public DbMRSServices(String persistenceUnitName) {
+        emf = Persistence.createEntityManagerFactory(persistenceUnitName);
+        em = emf.createEntityManager();
+    }
 
     /**
      * A MRSServices facade for PostresqlDB is initialized according to the passed config.
@@ -179,4 +187,7 @@ public class DbMRSServices implements MRSServices {
     @Override
     public void removeDB() { }
 
+    public void clearDB() {
+        em.clear();
+    }
 }

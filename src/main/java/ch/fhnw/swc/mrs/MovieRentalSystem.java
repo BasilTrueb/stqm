@@ -1,6 +1,6 @@
 package ch.fhnw.swc.mrs;
 
-import ch.fhnw.swc.mrs.data.SimpleMRSServices;
+import ch.fhnw.swc.mrs.data.DbMRSServices;
 import ch.fhnw.swc.mrs.view.MainController;
 
 /**
@@ -8,7 +8,7 @@ import ch.fhnw.swc.mrs.view.MainController;
  */
 public class MovieRentalSystem {
 
-    private SimpleMRSServices backend = new SimpleMRSServices();
+    private DbMRSServices backend = new DbMRSServices();
 
     /**
      * start initialization of the application.
