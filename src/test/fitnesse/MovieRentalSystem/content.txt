@@ -13,21 +13,59 @@ Click the [[Edit][.MRS?edit]] button to edit this page.
 ${maven.classpath}
 *!
 
-!| ActionFixture |
-| start | ch.fhnw.swc.mrs.fixture.SaveNewUserFixture |
-| check | countUsers | 14 |
-| enter | surname | Meier |
-| enter | first name | Hans |
-| enter | birthdate | 10.12.2001 |
-| press | save |
-| check | countUsers | 15 |
+
+!4 Check whether the initial users are there
+!|ch.fhnw.swc.mrs.fixture.UserListFixture|
+|name        |first name   |birth date  |
+|Meier       |Pia          |1987-10-04  |
+|Locher      |Bernhard     |1998-01-01  |
+|Meier       |Sami         |2009-04-16  |
+|Müller      |Rita         |1965-01-24  |
+|Meyer       |Daniela      |2008-11-20  |
+|Frei        |Karin        |1997-06-05  |
+|Otto        |Peter        |1974-03-25  |
+|Senderos    |Albin        |1948-05-03  |
+|Rieder      |Trury        |1984-12-31  |
+|Sorg        |Manuela      |1996-10-10  |
+|Schwaiger   |Wolfgang     |2012-07-02  |
+|Müller      |Theo         |1974-05-23  |
+|Meier       |Timothy      |1988-08-18  |
+|Huber       |Roland       |2017-08-01  |
 
 !| ActionFixture |
 | start | ch.fhnw.swc.mrs.fixture.SaveNewUserFixture |
 | check | countUsers | 14 |
-| enter | surname | Jäckle |
+| enter | surname | Jaeckle |
 | enter | first name | Livio |
 | enter | birthdate | 01.11.1997 |
 | press | save |
 | check | countUsers | 15 |
-| check | userExists | true |
+
+!4 Check whether the initial users are there
+!|ch.fhnw.swc.mrs.fixture.UserListFixture|
+|name        |first name   |birth date  |
+|Meier       |Pia          |1987-10-04  |
+|Locher      |Bernhard     |1998-01-01  |
+|Meier       |Sami         |2009-04-16  |
+|Müller      |Rita         |1965-01-24  |
+|Meyer       |Daniela      |2008-11-20  |
+|Frei        |Karin        |1997-06-05  |
+|Otto        |Peter        |1974-03-25  |
+|Senderos    |Albin        |1948-05-03  |
+|Rieder      |Trury        |1984-12-31  |
+|Sorg        |Manuela      |1996-10-10  |
+|Schwaiger   |Wolfgang     |2012-07-02  |
+|Müller      |Theo         |1974-05-23  |
+|Meier       |Timothy      |1988-08-18  |
+|Huber       |Roland       |2017-08-01  |
+|Jaeckle     |Livio        |1997-11-01  |
+
+
+!| ActionFixture |
+| start | ch.fhnw.swc.mrs.fixture.SaveNewUserFixture |
+| check | countUsers | 14 |
+| enter | surname | Huber |
+| enter | first name | Roland |
+| enter | birthdate | 01.08.2017 |
+| press | delete |
+| check | countUsers | 13 |
