@@ -37,6 +37,19 @@ public class SaveNewUserFixture extends ActionFixture {
     public void save() {
         mrsServices.createUser(surname, firstname, birthdate);
     }
+
+//    public boolean userExists(String fullName) {
+//        return mrsServices.getAllUsers().stream()
+//                .anyMatch(u -> (u.getFirstName() + " " + u.getName()).equals(fullName));
+//    }
+
+    public void delete() {
+        mrsServices.getAllUsers().stream()
+                .filter(u -> u.getFirstName().equals(firstname) && u.getName().equals(surname))
+                .findFirst()
+                .ifPresent(u -> mrsServices.deleteUser(u.getUserid()));
+    }
+
     /**
      * Counts the entries in the table.
      * @return how many entries are saved
@@ -45,9 +58,6 @@ public class SaveNewUserFixture extends ActionFixture {
         return mrsServices.getAllUsers().size();
     }
 
-    public boolean userExists() {
-        return mrsServices.getAllUsers().stream()
-                .anyMatch(u -> (u.getFirstName() + " " + u.getName()).equals("Livio Jäckle"));
-    }
 }
+
 
